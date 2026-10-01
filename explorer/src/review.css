@@ -705,3 +705,12 @@
 .evidence-preview small {
   display: block;
 }
+
+.check-guidance {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  color: #54635c;
+  font-weight: 400;
+  line-height: 1.5;
+}

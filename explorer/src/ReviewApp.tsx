@@ -9,6 +9,7 @@ import {
   downloadReview,
   lines,
   reviewRequest,
+  reviewGuidance,
   safeSource,
   samePerson,
   statusNames,
@@ -1168,7 +1169,15 @@ export default function ReviewApp() {
                                     )
                                   }
                                 />
-                                <span>{label}</span>
+                                <span>
+                                  {label}
+                                  {reviewGuidance(key, draft.alternatives) && (
+                                    <span className="check-guidance">
+                                      <small>{reviewGuidance(key, draft.alternatives)!.check}</small>
+                                      <small>{reviewGuidance(key, draft.alternatives)!.leave}</small>
+                                    </span>
+                                  )}
+                                </span>
                               </label>
                             ))}
                           </fieldset>

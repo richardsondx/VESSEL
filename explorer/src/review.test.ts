@@ -50,3 +50,16 @@ describe("human review browser contracts", () => {
     expect(alternative.document.urls[1]).toBe("");
   });
 });
+
+it("explains when checks pass or fail, including tasks that do not require data", async () => {
+  const { reviewGuidance } = await import("./review");
+  const answer = blankAlternative("one");
+  const alternatives = reviewGuidance("alternatives", [answer])!;
+  expect(alternatives.check).toContain("1 proposed answer is shown");
+  expect(alternatives.check).toContain("One answer is enough");
+  expect(alternatives.leave).toContain("Leave unchecked");
+  expect(reviewGuidance("requirements", [answer])!.check).toContain("does not require data");
+  answer.required.push("data");
+  expect(reviewGuidance("requirements", [answer])!.check).toContain("open each required Dataset link");
+  expect(reviewGuidance("requirements", [answer])!.leave).toContain("cannot verify");
+});

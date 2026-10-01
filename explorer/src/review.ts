@@ -96,13 +96,29 @@ export const checks = [
   ["query", "The question is realistic, answerable and sufficiently specific."],
   [
     "alternatives",
-    "I considered other valid answers and checked the accepted alternatives.",
+    "The proposed answers are valid, and I found no missing valid answer during my review.",
   ],
   [
     "requirements",
-    "Every required component is justified and obtainable; data is required only when available.",
+    "The required evidence is obtainable and appropriate for this question.",
   ],
 ] as const;
+export function reviewGuidance(key: string, alternatives: Alternative[]) {
+  if (key === "alternatives") return {
+    check: `${alternatives.length} proposed answer${alternatives.length === 1 ? " is" : "s are"} shown. Check when every proposed answer satisfies the question and you have not identified another valid answer that is missing. One answer is enough; you do not need to invent another.`,
+    leave: "Leave unchecked if a proposed answer is wrong, you found a missing valid answer, or you are unsure. Describe the issue in review notes and request changes.",
+  };
+  if (key === "requirements") {
+    const needsData = alternatives.some(a => a.required.includes("data"));
+    return {
+      check: needsData
+        ? "Check when every required item under ‘Required for success’ is appropriate and obtainable. This task requires data: open each required Dataset link and confirm it provides the numbers for the corresponding visual, with matching measures and series."
+        : "Check when every required item under ‘Required for success’ is appropriate and obtainable. This task does not require data; you do not need to find a dataset to pass this check.",
+      leave: "Leave unchecked if a required item is missing, unrelated, unnecessarily demanded, or you cannot verify it. Record what failed and request changes.",
+    };
+  }
+  return null;
+}
 export const statusNames: Record<string, string> = {
   draft: "Draft",
   awaiting_review: "Needs second review",

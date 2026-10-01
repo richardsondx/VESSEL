@@ -60,3 +60,20 @@ links, and PDFs use the recorded page when no image exists.
 QA rule: **Visual first**, enforced by rendered-component tests in
 explorer/src/evidence.test.tsx and actual browser inspection. This correction
 strengthens the review workflow's acceptance criteria beyond form mechanics.
+
+## Explicit checkbox decisions — 2026-10-01
+
+Exact feedback: "these dont tell me when i should check or leave uncheckl."
+Confirmed requirement: review attestations need observable pass/fail criteria,
+not definitions alone. The alternatives check states the proposed-answer count,
+that one answer can suffice, and what wrong/missing/uncertain answers require.
+Requirements help depends on whether the current task requires data; no-data
+questions do not require a dataset to pass. Unknowns remain unchecked and receive
+notes/requested changes. No human decisions were made by the agent.
+Executable protection: review.test.ts checks guidance for one answer and both
+required/optional data cases. 18 frontend tests and TypeScript/Vite build pass.
+Browser verified in a separate tab to preserve the user's current transient
+checkboxes. Screenshot: .private/prepared-review-qa/checklist-guidance.png.
+Requested empty draft pilot-74cb3d90 was removed from the private workspace with
+an archived copy; all three prepared tasks remain unchanged. No deletion feature
+or permanent data deletion was introduced.
