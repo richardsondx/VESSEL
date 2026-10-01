@@ -62,13 +62,13 @@ function Source({ url, label }: { url?: string; label: string }) {
     <span className="muted">{label}: not recorded</span>
   );
 }
-function Evidence({ alternative: a }: { alternative: Alternative }) {
-  const [preview, setPreview] = useState(false);
+export function Evidence({ alternative: a }: { alternative: Alternative }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
-    setPreview(false);
     setFailed(false);
-  }, [a.evidence_id, a.visual.urls.join()]);
+    setLoaded(false);
+  }, [a.evidence_id, a.visual.urls.join(), a.document.urls.join()]);
   const visual = safeSource(a.visual.urls[0]);
   const document = safeSource(a.document.urls[0]);
   const pdf =
@@ -79,7 +79,39 @@ function Evidence({ alternative: a }: { alternative: Alternative }) {
       <h3>{a.evidence_id || "Answer identity not recorded"}</h3>
       <div className="review-links">
         <Source url={document} label="Original document" />
-        <Source url={visual} label="Exact visual" />
+        <Source url={visual} label="Open full-size visual" />
+      </div>
+      <div className="evidence-preview">
+        {visual && !failed ? (
+          <>
+            {!loaded && <p role="status">Loading publisher visual…</p>}
+            <a href={visual} target="_blank" rel="noreferrer" aria-label={`Enlarge visual ${a.evidence_id}`}>
+              <img
+                src={visual}
+                alt={`Primary evidence ${a.evidence_id}`}
+                referrerPolicy="no-referrer"
+                onLoad={() => setLoaded(true)}
+                onError={() => setFailed(true)}
+              />
+            </a>
+            <small>Publisher visual · select the image to inspect it at full size.</small>
+          </>
+        ) : pdf ? (
+          <>
+            {failed && <p role="status">The exact visual could not load. Showing its source document.</p>}
+            <iframe
+              title="Primary document preview"
+              sandbox="allow-same-origin"
+              referrerPolicy="no-referrer"
+              src={`${document?.split("#")[0]}#page=${(a.locations[0]?.page_index ?? 0) + 1}`}
+            />
+            <small>If embedding is blocked, open the original document above at the recorded page.</small>
+          </>
+        ) : (
+          <p role="status">{failed
+            ? "This visual could not load here. Open the full-size visual or original document above."
+            : "No previewable visual has been recorded. Open the original document to inspect the evidence."}</p>
+        )}
       </div>
       <p>
         {a.original_required
@@ -100,38 +132,6 @@ function Evidence({ alternative: a }: { alternative: Alternative }) {
         {a.verification_notes ||
           "Primary-source verification notes have not been added."}
       </p>
-      {(visual || pdf) && (
-        <button
-          className="review-secondary"
-          onClick={() => setPreview(!preview)}
-        >
-          {preview ? "Hide preview" : "Show source preview"}
-        </button>
-      )}
-      {preview &&
-        (pdf ? (
-          <>
-            <iframe
-              title="Primary document preview"
-              sandbox="allow-same-origin"
-              src={`${document?.split("#")[0]}#page=${(a.locations[0]?.page_index ?? 0) + 1}`}
-            />
-            <small>
-              If the publisher blocks embedding, open the original document
-              above.
-            </small>
-          </>
-        ) : failed ? (
-          <p role="status">
-            This visual cannot be previewed here. Open the exact visual above.
-          </p>
-        ) : (
-          <img
-            src={visual}
-            alt={`Primary evidence ${a.evidence_id}`}
-            onError={() => setFailed(true)}
-          />
-        ))}
       <h4>Required for success</h4>
       <div className="review-tags">
         {a.required.map((r) => (

@@ -29,7 +29,8 @@ are AI-assisted proposals, not approved gold or the twenty-query pilot.
 1. Enter your actual name and select **First reviewer / task author**.
 2. Select a prepared question and click **Start first review**. This assigns the
    first human review to you; it records no approval.
-3. Read the proposed question. Open the publisher page, visual and data links.
+3. Read the proposed question. The visual appears automatically above the notes;
+   select it to inspect it at full size. Open the publisher page and data links.
    Check whether they answer the question and whether the required components are fair.
 4. In **Decision & history**, complete the five checks, add your verification notes,
    confirm your own human review, then approve or request changes.

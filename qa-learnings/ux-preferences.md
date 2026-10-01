@@ -48,3 +48,15 @@ Executable protection: `test_prepared_inbox_preserves_work_and_requires_two_huma
 Initial implementation has three real development proposals; this is a starter
 batch, not the twenty-query pilot or Core-100. Browser verification recorded in
 PREPARED_REVIEW.md. Confidence: explicit user correction.
+
+## Visual-first review — 2026-10-01
+
+Exact feedback: "why it's not showing the visual directly ... it would make it
+easier for a reviewer to see the visual directly no?"
+Confirmed requirement: the object being judged must appear immediately in its
+review context. Scope: /review evidence cards. Visual precedes long verification
+notes; full-size access remains available. Missing/failed images retain source
+links, and PDFs use the recorded page when no image exists.
+QA rule: **Visual first**, enforced by rendered-component tests in
+explorer/src/evidence.test.tsx and actual browser inspection. This correction
+strengthens the review workflow's acceptance criteria beyond form mechanics.

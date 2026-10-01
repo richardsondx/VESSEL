@@ -683,3 +683,25 @@
     padding-top: 26px;
   }
 }
+
+.evidence-preview {
+  margin: 20px 0;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #dce4d9;
+  border-radius: 10px;
+}
+.evidence-preview img {
+  width: 100%;
+  margin: 0 0 12px;
+  cursor: zoom-in;
+}
+.evidence-preview a {
+  display: block;
+}
+.evidence-preview iframe {
+  margin-top: 0;
+}
+.evidence-preview small {
+  display: block;
+}
