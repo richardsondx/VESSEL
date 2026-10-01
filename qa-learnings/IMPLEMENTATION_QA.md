@@ -41,4 +41,16 @@ checked separately from these locally executed checks.
 Configuration follow-up: `vessel doctor` checks only set/missing state and budget
 prerequisites. Tests verify current-directory `.env` loading, exported-variable
 precedence, no network requests and no secret values in diagnostics or YAML errors.
-Local credential files remain ignored; no paid provider requests were made.
+Local credential files remain ignored; diagnostic commands make no provider requests.
+
+## Separate live connectivity check
+
+User authorized a $1 total smoke-test cap. Exactly one Keenable `pro` search and one
+Exa `auto` search requested three results each. Both returned `ok` and three normalized
+results. There were no retries, fetches, scoring or scientific performance conclusions.
+Each request reserved $0.25; total reservation was $0.50. Exa reported $0.007;
+Keenable supplied no dollar cost. Provider-reported costs are not audited invoices.
+The response artifacts and reservation manifest remain under ignored `runs/`.
+Evidence8's public `/v1/search` URL served HTML, not an API response; the configured
+local API was not running. No Serper key was found in the inspected local SEOBeaver
+configuration, and no Serper request was made.

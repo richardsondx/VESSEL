@@ -14,12 +14,15 @@ reports, human review/audit commands, offline CI and a React results explorer.
 | Characterization | Public A–M Evidence8 study, all 36 registry/detail pages inspected, source hashes, four provider profiles | Configured workspace response audit; inaccessible examples and unknown fields remain explicitly unverified |
 | Pilot | Twenty **synthetic software fixtures**, deterministic replay | Twenty real primary-evidence queries with author and independent human review |
 | Core-100 | One hundred **unreviewed discovery candidates**, schema and composition checks | Freeze index before authoring; verify gold and at least 40 holdout queries; independent review |
-| Validation | 81 backend tests; 10 explorer tests; local replay, resume, lint and production build pass | Configured live adapters; capped comparisons; human failure audit |
+| Validation | 81 backend tests; 10 explorer tests; local replay, resume, lint and production build pass | Full live protocol validation; capped comparisons; human failure audit |
 | Publication | Read-only artifact explorer and public-export rejection gates | Eligible audited Core-100 artifacts; deploy to vessel.evidence8.com after validation |
 
-No live benchmark requests or paid calls were made. No human review or index
-attestation was invented. Missing configured endpoints/credentials produce explicit
-skips; local Evidence8 access was not reachable in this session.
+No live benchmark evaluation has been run. A separate user-authorized connectivity
+check made one search each against Keenable and Exa; both returned three normalized
+results. Its $1 cap reserved $0.50 conservatively; Exa reported $0.007 and Keenable's
+dollar cost was unknown. This was not a comparative benchmark or scoring run.
+No human review or index attestation was invented. Missing configuration produces
+explicit skips; the local Evidence8 API was not reachable and Serper was unconfigured.
 
 ## Verification
 

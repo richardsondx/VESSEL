@@ -143,7 +143,8 @@ become headline rankings.
 Adapters exist for [Evidence8](docs/providers/evidence8.md),
 [Keenable](docs/providers/keenable.md), [Exa](docs/providers/exa.md), and
 [Serper](docs/providers/serper.md). Their public interface profiles distinguish
-claims, observations, and unknowns; live integration verification remains pending.
+claims, observations, and unknowns. Single-search Keenable and Exa connectivity
+checks pass; full protocol and benchmark validation remain pending.
 Evidence8 is one evaluated provider and does not supply benchmark ground truth.
 The Keenable + Evidence8 hybrid is a separately reported system with a documented
 [retrieval strategy](docs/RUNNING.md#hybrid-evaluation).

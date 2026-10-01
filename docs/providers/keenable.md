@@ -1,6 +1,6 @@
 # Keenable characterization
 
-Date: 2026-09-30. Status: documentation characterized; live adapter not yet tested.
+Date: 2026-09-30. Status: documentation characterized; one authenticated search smoke check passed.
 
 - Interface: `POST https://api.keenable.ai/v1/search`, `X-API-Key` header.
 - Claim/result types: ranked pages with URL, title, description, snippet and optional
@@ -15,3 +15,13 @@ Date: 2026-09-30. Status: documentation characterized; live adapter not yet test
 - Source: [official search reference](https://docs.keenable.ai/api-reference/search).
 
 Keyless endpoints exist but are opt-in; missing credentials skip by default.
+
+## Observed live smoke check
+
+One authenticated search requested three results and returned three normalized
+results without adapter errors. No provider fetch, shared extraction, retry or
+benchmark scoring was performed. This checks authentication and the sampled response
+shape; full protocol, failure and benchmark validation remain pending.
+Authenticated payloads and credentials are kept in ignored local artifacts.
+
+Tested settings: `mode: pro`, `max_results: 3`. Dollar cost was not returned.
