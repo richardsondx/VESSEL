@@ -310,3 +310,39 @@ def test_prepared_inbox_preserves_work_and_requires_two_humans(store):
         decision(store, task, reviewer="Alice", role="independent")
     assert decision(store, task, reviewer="Bob", role="independent")["status"] == "approved"
     assert store.load_prepared(records)["tasks"][1]["author"] == "Alice"
+
+
+def test_unclaim_preserves_evidence_and_invalidates_approvals(store):
+    from vessel.review_workspace import PREPARER, DraftRecord
+
+    record = DraftRecord.model_validate_json(
+        Path("data/prepared-review-development.jsonl").read_text().splitlines()[0]
+    )
+    task = store.load_prepared([record])["tasks"][0]
+    task = store.mutate(
+        "claim", {"reviewer": "Alice", "task_id": record.query_id, "revision": task["revision"]}
+    )["tasks"][0]
+    with pytest.raises(ValueError, match="current first reviewer"):
+        store.mutate(
+            "unclaim", {"reviewer": "Bob", "task_id": record.query_id, "revision": task["revision"]}
+        )
+    task = decision(store, task)
+    task = decision(store, task, reviewer="Bob", role="independent")
+    assert task["status"] == "approved"
+    content = store.read().tasks[0].record.content_digest()
+    task = store.mutate(
+        "unclaim", {"reviewer": "Alice", "task_id": record.query_id, "revision": task["revision"]}
+    )["tasks"][0]
+    assert task["author"] == PREPARER
+    assert task["status"] == "draft"
+    assert task["record"]["reviews"] == []
+    assert store.read().tasks[0].record.content_digest() == content
+    assert len(task["previous_versions"][-1]["reviews"]) == 2
+    assert task["history"][-1]["kind"] == "unclaim"
+    assert any(e["kind"] == "approved" for e in task["history"])
+    task = store.mutate(
+        "claim", {"reviewer": "Carol", "task_id": record.query_id, "revision": task["revision"]}
+    )["tasks"][0]
+    assert task["author"] == "Carol"
+    assert task["status"] == "draft"
+    assert task["record"]["reviews"] == []

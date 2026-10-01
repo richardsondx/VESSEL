@@ -10,6 +10,7 @@ import {
   lines,
   reviewRequest,
   reviewGuidance,
+  approvalBlockers,
   safeSource,
   samePerson,
   statusNames,
@@ -205,6 +206,9 @@ export default function ReviewApp() {
       : !samePerson(name, task.author));
   const decisionAllowed =
     matchesRole && (role === "author" || task?.status !== "draft");
+  const blockers = approvalBlockers({name, prepared: !!prepared, matchesRole,
+    decisionAllowed: !!decisionAllowed, dirty, human, notes,
+    selectedChecks, issues: task?.issues ?? [], busy});
 
   const accept = (w: Workspace, id = selectedId) => {
     setWorkspace(w);
@@ -337,6 +341,15 @@ export default function ReviewApp() {
           : "Requested changes recorded. The author can revise the task and resubmit it.",
       );
     });
+  const unclaim = () => execute(async () => {
+    if (dirty) throw Error("Save your edits before unclaiming this task.");
+    if (task?.record.reviews.length && !confirm("Unclaim this task? Current approvals will be cleared. Past decisions will remain in history, and both reviewers must approve again.")) return;
+    const w = await reviewRequest<Workspace>("unclaim", {
+      reviewer: name, task_id: selectedId, revision: task?.revision,
+    });
+    accept(w);
+    setNotice("Task unclaimed. Its evidence is preserved and another first reviewer can claim it. Past decisions remain in history.");
+  });
   const importFile = (file: File | undefined) =>
     execute(async () => {
       if (!file || !discard()) return;
@@ -620,6 +633,11 @@ export default function ReviewApp() {
                           Start first review
                         </button>
                       </aside>
+                    )}
+                    {canEdit && task.history.some(event => event.kind === "prepared") && (
+                      <button className="review-secondary" disabled={busy || dirty} onClick={() => void unclaim()}>
+                        Unclaim task
+                      </button>
                     )}
                     {dirty && (
                       <p className="unsaved" role="status">
@@ -1203,20 +1221,12 @@ export default function ReviewApp() {
                           <div className="review-bottom-actions">
                             <button
                               className="review-primary"
-                              disabled={
-                                busy ||
-                                dirty ||
-                                !decisionAllowed ||
-                                !human ||
-                                !notes.trim() ||
-                                !name.trim() ||
-                                selectedChecks.length !== checks.length ||
-                                task.issues.length > 0
-                              }
+                              disabled={blockers.length > 0}
+                              aria-describedby={blockers.length ? "approval-blockers" : undefined}
                               onClick={() => void decide("approved")}
                             >
                               {role === "author"
-                                ? "Approve & send for second review"
+                                ? "Approve first review"
                                 : "Approve this version"}
                             </button>
                             <button
@@ -1234,6 +1244,14 @@ export default function ReviewApp() {
                               Request changes
                             </button>
                           </div>
+                          {blockers.length > 0 && (
+                            <div id="approval-blockers" className="readiness" aria-live="polite">
+                              <strong>To enable approval:</strong>
+                              <ul>{blockers.map(reason => <li key={reason}>{reason}</li>)}</ul>
+                              <p>For Request changes, claim the task, add a note and confirm your human review. The five evidence checks can remain unchecked.</p>
+                            </div>
+                          )}
+                          {role === "author" && <p className="muted">Approval saves your first review. Then export a packet for a different human; nothing is sent automatically.</p>}
                           <p className="muted">
                             Approvals apply to this exact content. Editing any
                             evidence or requirement makes earlier approvals

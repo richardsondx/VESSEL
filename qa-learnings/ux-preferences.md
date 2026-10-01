@@ -77,3 +77,18 @@ checkboxes. Screenshot: .private/prepared-review-qa/checklist-guidance.png.
 Requested empty draft pilot-74cb3d90 was removed from the private workspace with
 an archived copy; all three prepared tasks remain unchanged. No deletion feature
 or permanent data deletion was introduced.
+
+## Actionable disabled states and ownership — 2026-10-01
+
+Feedback: "why this is dsiabled? add a way to unclaim" and request for clearer
+checkbox wording. Rule: disabled review actions list current missing prerequisites
+in place; claim ownership is reversible without deleting evidence. Short labels
+state what the reviewer verified, with explicit unchecked cases beside them.
+Implementation: approvalBlockers drives both the disabled state and explanation;
+unclaim is restricted to the current first reviewer of prepared tasks. It clears
+current approvals, preserves prior reviewed snapshots/history and allows re-claim.
+Executable protection: frontend blockers test; backend
+test_unclaim_preserves_evidence_and_invalidates_approvals.
+Verification: 19 frontend tests, 16 review backend tests, Ruff and production
+build pass. Isolated browser claim → blockers → unclaim confirms preserved evidence
+and no fabricated human decisions. User's active unsaved selections are preserved.

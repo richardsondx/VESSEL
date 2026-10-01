@@ -63,3 +63,18 @@ it("explains when checks pass or fail, including tasks that do not require data"
   expect(reviewGuidance("requirements", [answer])!.check).toContain("open each required Dataset link");
   expect(reviewGuidance("requirements", [answer])!.leave).toContain("cannot verify");
 });
+
+it("explains disabled approval and becomes ready only after all prerequisites", async () => {
+  const { approvalBlockers } = await import("./review");
+  const ready = {name:"Alice", prepared:false, matchesRole:true, decisionAllowed:true,
+    dirty:false, human:true, notes:"Checked the primary source", selectedChecks:checks.map(([key])=>key), issues:[], busy:false};
+  expect(approvalBlockers(ready)).toEqual([]);
+  const missing = approvalBlockers({...ready, prepared:true, matchesRole:false, notes:"", human:false, selectedChecks:[]});
+  expect(missing.join(" ")).toContain("Start first review");
+  expect(missing.join(" ")).toContain("Add review notes");
+  expect(missing.join(" ")).toContain("personally reviewed");
+  expect(missing.join(" ")).toContain("Valid answers");
+  expect(missing.join(" ")).toContain("Required evidence");
+  expect(approvalBlockers({...ready, dirty:true})).toContain("Save your task edits first.");
+  expect(approvalBlockers({...ready, decisionAllowed:false}).join(" ")).toContain("before independent review");
+});

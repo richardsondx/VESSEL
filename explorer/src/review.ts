@@ -96,11 +96,11 @@ export const checks = [
   ["query", "The question is realistic, answerable and sufficiently specific."],
   [
     "alternatives",
-    "The proposed answers are valid, and I found no missing valid answer during my review.",
+    "Each proposed answer matches the question. I found no other valid answer that needs adding.",
   ],
   [
     "requirements",
-    "The required evidence is obtainable and appropriate for this question.",
+    "I verified every required item. If data is required, its download contains the data for this visual.",
   ],
 ] as const;
 export function reviewGuidance(key: string, alternatives: Alternative[]) {
@@ -118,6 +118,25 @@ export function reviewGuidance(key: string, alternatives: Alternative[]) {
     };
   }
   return null;
+}
+export function approvalBlockers(state: {
+  name: string; prepared: boolean; matchesRole: boolean; decisionAllowed: boolean;
+  dirty: boolean; human: boolean; notes: string; selectedChecks: string[];
+  issues: string[]; busy: boolean;
+}) {
+  const reasons: string[] = [];
+  if (state.busy) reasons.push("Wait for the current save to finish.");
+  if (!state.name.trim()) reasons.push("Enter your reviewer name.");
+  if (state.prepared) reasons.push("Click Start first review to claim this task before recording a decision.");
+  else if (!state.matchesRole) reasons.push("Use the name and role assigned to this review.");
+  else if (!state.decisionAllowed) reasons.push("The first reviewer must approve this version before independent review.");
+  if (state.dirty) reasons.push("Save your task edits first.");
+  const titles: Record<string, string> = {source: "Publisher source", identity: "Exact visual", query: "Question", alternatives: "Valid answers", requirements: "Required evidence"};
+  for (const [key] of checks) if (!state.selectedChecks.includes(key)) reasons.push(`Complete the ‘${titles[key]}’ check after verifying it.`);
+  if (!state.notes.trim()) reasons.push("Add review notes describing what you checked.");
+  if (!state.human) reasons.push("Confirm that you personally reviewed this task.");
+  if (state.issues.length) reasons.push("Resolve the task issues listed above.");
+  return reasons;
 }
 export const statusNames: Record<string, string> = {
   draft: "Draft",

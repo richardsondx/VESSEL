@@ -235,6 +235,15 @@ class ReviewStore:
                     if identity(reviewer) == identity(PREPARER):
                         raise ValueError("Enter your own human reviewer name.")
                     task.author = reviewer
+                elif action == "unclaim":
+                    if identity(reviewer) != identity(task.author) or task.author == PREPARER:
+                        raise ValueError("Only the current first reviewer can unclaim this task.")
+                    if not any(event.kind == "prepared" for event in task.history):
+                        raise ValueError("Only prepared tasks can return to the unassigned inbox.")
+                    if task.record.reviews:
+                        task.previous_versions.append(task.record.model_copy(deep=True))
+                        task.record.reviews = []
+                    task.author = PREPARER
                 elif action == "save":
                     if identity(reviewer) != identity(task.author):
                         raise ValueError(

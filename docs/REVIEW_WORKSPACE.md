@@ -56,7 +56,7 @@ data vintage; check current metadata before approving.
    and original-visual requirements are explicit; missing data is not invented.
 6. **Save draft**, then open **Decision & history**. Inspect the primary evidence,
    complete all five checks, add verification notes, confirm your own human review,
-   and choose **Approve & send for second review**.
+   and choose **Approve first review**.
 
 Drafts persist after saving. Unsaved edits are visibly marked; leaving or switching
 tasks asks before discarding them. Evaluation tasks need a preserved index freeze
@@ -99,3 +99,15 @@ absolute location, so it remains usable in browsers without download support.
 Before running a dataset, validate it with `uv run vessel validate PATH.jsonl`.
 Before comparative publication, complete all release and audit gates, including
 `--release` validation. A twenty-task pilot is not a completed Core-100 release.
+
+## Disabled actions and unclaiming
+
+The decision panel lists the exact missing steps under **To enable approval**.
+Approval needs an assigned human reviewer, five verified checks, review notes,
+human confirmation, saved edits and a valid task. Request changes needs ownership,
+notes and human confirmation, but does not require all five checks to pass.
+
+For a prepared task you claimed, **Unclaim task** returns it to the unassigned
+inbox. Save edits first. Evidence stays intact. Any current approvals are cleared
+with a confirmation; historical decisions and reviewed snapshots remain visible.
+A new reviewer must claim and review the task again.
