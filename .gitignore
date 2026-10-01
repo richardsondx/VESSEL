@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+.env
+.env.*
+!.env.example
+runs/
+.private/
+node_modules/
+explorer/dist/
+explorer/public/report.json
+*.egg-info/
+.DS_Store
