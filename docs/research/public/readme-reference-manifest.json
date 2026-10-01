@@ -1,0 +1,56 @@
+[
+  {
+    "repository": "keenableai/needle",
+    "url": "https://github.com/keenableai/needle",
+    "metadata_source": "https://api.github.com/repos/keenableai/needle",
+    "stars": 32,
+    "retrieved_at": "2026-10-01T03:41:20.615516+00:00",
+    "readme_sha256": "05898d2814b0f7263e3e15be4ea04791b16a0830d5cbd0be5af936248a052538",
+    "readme_redistributed": false
+  },
+  {
+    "repository": "EleutherAI/lm-evaluation-harness",
+    "url": "https://github.com/EleutherAI/lm-evaluation-harness",
+    "metadata_source": "https://api.github.com/repos/EleutherAI/lm-evaluation-harness",
+    "stars": 14105,
+    "retrieved_at": "2026-10-01T03:41:20.946997+00:00",
+    "readme_sha256": "57c5cf1db6edb20393ca70851de820898bd8d10424a5a7574f9f566a6f8d70bd",
+    "readme_redistributed": false
+  },
+  {
+    "repository": "embeddings-benchmark/mteb",
+    "url": "https://github.com/embeddings-benchmark/mteb",
+    "metadata_source": "https://api.github.com/repos/embeddings-benchmark/mteb",
+    "stars": 3440,
+    "retrieved_at": "2026-10-01T03:41:21.177301+00:00",
+    "readme_sha256": "7d4d66862ca3fd92d8c1949aca25d684362ee9aa40462d046bdfde5d9e86729a",
+    "readme_redistributed": false
+  },
+  {
+    "repository": "SWE-bench/SWE-bench",
+    "url": "https://github.com/SWE-bench/SWE-bench",
+    "metadata_source": "https://api.github.com/repos/SWE-bench/SWE-bench",
+    "stars": 5940,
+    "retrieved_at": "2026-10-01T03:41:21.511293+00:00",
+    "readme_sha256": "06841624d7b5130dfe3cc6714642e9a8fd2a608c95c66ae0180e409f12b73aaa",
+    "readme_redistributed": false
+  },
+  {
+    "repository": "stanford-crfm/helm",
+    "url": "https://github.com/stanford-crfm/helm",
+    "metadata_source": "https://api.github.com/repos/stanford-crfm/helm",
+    "stars": 2929,
+    "retrieved_at": "2026-10-01T03:41:21.790933+00:00",
+    "readme_sha256": "465390a907127138096869b49fd79c817392f5404d23d98161d881f2e408a303",
+    "readme_redistributed": false
+  },
+  {
+    "repository": "beir-cellar/beir",
+    "url": "https://github.com/beir-cellar/beir",
+    "metadata_source": "https://api.github.com/repos/beir-cellar/beir",
+    "stars": 2305,
+    "retrieved_at": "2026-10-01T03:41:22.023324+00:00",
+    "readme_sha256": "d030c5374d29194e6c23ded13314dc6964b253c137cbcf606765a4222f4bc4e1",
+    "readme_redistributed": false
+  }
+]

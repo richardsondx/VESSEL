@@ -1,99 +1,175 @@
 # VESSEL
 
-**Visual Evidence Search & Source Evaluation Live** — an independent, open
-benchmark for retrieving primary visual evidence and its source trail.
+**Visual Evidence Search & Source Evaluation Live**
 
-Provider characterization determines invocation, never success.
+An open benchmark and evaluation harness for retrieving **the right visual,
+its primary source, its precise location, and applicable underlying data**.
 
-Status: development infrastructure. No validated Core-100 or provider leaderboard
-has been released. Synthetic fixtures test software; they are not provider results.
+[![Offline verification](https://github.com/richardsondx/VESSEL/actions/workflows/ci.yml/badge.svg)](https://github.com/richardsondx/VESSEL/actions/workflows/ci.yml)
+[![Code: Apache-2.0](https://img.shields.io/badge/code-Apache--2.0-blue)](LICENSE)
+[![Annotations: CC BY 4.0](https://img.shields.io/badge/annotations-CC_BY_4.0-blue)](data/LICENSE)
 
-See [SPEC](SPEC.md), [methodology](METHODOLOGY.md), [contamination policy](CONTAMINATION.md),
-[Evidence8 study](docs/EVIDENCE8_STUDY.md), and [implementation status](docs/IMPLEMENTATION_STATUS.md).
+[Quickstart](#quickstart) · [What we measure](#what-we-measure) ·
+[Methodology](METHODOLOGY.md) · [Data](#data-and-release-status) ·
+[Contribute](CONTRIBUTING.md) · [Cite](#citation-and-rights)
 
-## Run offline
+> **Development release:** the harness and explorer work with offline fixtures.
+> Core-100 is awaiting independent human review and index attestations.
+> No validated provider rankings have been published. Demo values are synthetic.
 
-Requires Python 3.12+, [uv](https://docs.astral.sh/uv/) and Node.js 22.12+ for the explorer.
+## Start here
+
+| Your goal | Where to start | What you can inspect |
+|---|---|---|
+| **Scientist:** assess evidence and its source trail | [Gold annotation guide](docs/ANNOTATION_GUIDE.md) | Primary references, visual identity, figure/page locations, available data, and review decisions |
+| **Researcher:** reproduce or critique an evaluation | [Methodology](METHODOLOGY.md) and [contamination policy](CONTAMINATION.md) | Protocol boundaries, scoring rules, versions, uncertainty, and holdout requirements |
+| **Developer:** run the harness or add a provider | [Quickstart](#quickstart) and [contributor guide](CONTRIBUTING.md) | Normalized contracts, replay artifacts, adapters, and failure diagnostics |
+
+## Quickstart
+
+Run a complete software demonstration without provider credentials or paid API calls.
+Installation downloads dependencies; evaluation uses local fixtures.
+Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
 
 ```sh
+git clone https://github.com/richardsondx/VESSEL.git
+cd VESSEL
 uv sync --frozen --python 3.12
 uv run vessel validate data/synthetic-pilot.jsonl
-uv run vessel run data/synthetic-pilot.jsonl configs/replay.yaml runs/demo \
+uv run vessel run data/synthetic-pilot.jsonl configs/replay.yaml runs/quickstart \
   --fixture tests/fixtures/replay.json
-uv run vessel replay runs/demo
-uv run vessel export runs/demo explorer/public/report.json
+uv run vessel replay runs/quickstart
+```
+
+**Expected:** 20 synthetic queries × 4 system fixtures = 80 result cells,
+zero provider requests, and $0 reserved spend. The output is labeled
+`SYNTHETIC SOFTWARE FIXTURE — NOT PROVIDER PERFORMANCE`.
+Inspect `runs/quickstart/report.json`; re-scoring makes no provider requests.
+
+To explore the results, install Node.js 22.12+ and run:
+
+```sh
+uv run vessel export runs/quickstart explorer/public/report.json
 npm --prefix explorer ci
 npm --prefix explorer run dev
 ```
 
-The explorer loads an exported `report.json`, or the clearly labeled synthetic demo.
-It also imports local JSON reports, filters query outcomes, inspects coherent bundles,
-and downloads artifacts. No keys or provider calls run in the frontend.
+Open the local URL printed by Vite. Filter by provider, domain, visual type,
+membership, or outcome; inspect each query's accepted gold, returned bundles,
+provenance, and missing requirements. Import or download JSON reports locally.
+The frontend reads exported artifacts and contains no provider credentials.
 
-## Configure live providers
+Use a fresh run directory when changing code, dependencies, data, or configuration.
+For an identical interrupted run, add `--resume`. See the
+[running guide](docs/RUNNING.md) for live configuration and release commands.
 
-Copy `.env.example` to ignored `.env`. Evidence8 requires a configured workspace
-API base URL; `evidence8.com` is not a hosted API base. Other adapters use the official
-Keenable, Exa and Serper interfaces. Missing credentials skip only the corresponding
-provider. Keyless Keenable is opt-in via configuration.
+## What we measure
 
-Set conservative `request_cost_ceiling_usd` values in a copy of `configs/live.yaml`
-and an explicit `max_cost_usd`/`max_requests`. A null ceiling skips the provider.
-Costs are reservations/estimates, not a guarantee about provider billing. No paid
-requests run in CI. HTTP failures are recorded without automatic billable retries.
+A document hit can point to the right report while missing the requested figure,
+returning a reproduction, or omitting its source data. VESSEL records those outcomes
+separately.
 
-```sh
-uv run vessel run path/to/reviewed-gold.jsonl configs/my-live.yaml runs/core-100
-uv run vessel run path/to/reviewed-gold.jsonl configs/my-live.yaml runs/core-100 --resume
-uv run vessel report runs/core-100
-uv run vessel compare runs/a/report.json runs/b/report.json runs/comparison.json
-```
+**Full Support@K** means that one coherent bundle within the first K results
+satisfies every required component of one independently accepted gold alternative.
+The scorer cannot assemble support from unrelated bundles. Gold may accept multiple
+valid answers; source data is required only when verified as available and applicable.
 
-`configs/hybrid.yaml` records Keenable, Evidence8 and the document-conditioned hybrid
-as separate systems. The hybrid searches Evidence8 using the original information
-need plus each of Keenable's first five unique document URLs, attaching only bundles
-whose source URL matches. It makes no claim of a native document-enrichment endpoint.
-For Keenable plus shared extraction, use `search_fetch`; for Keenable alone use
-`search`. Comparisons across protocols are shown separately.
+Illustrative example, **not a benchmark query or measured result**: retrieve an
+original publisher chart, its report location, and the CSV the publisher supplies.
 
-Use a fresh output directory when changing code, data or configuration. Reservations
-persist before requests; an interrupted call may be charged again on resume, within
-the remaining cap. Receipts and content-addressed artifacts are integrity checked.
-Runs and authenticated artifacts are ignored by Git. Review them before redistribution.
+| Returned evidence | Document recall | Full Support |
+|---|---|---|
+| The correct report URL | Yes | No: the visual and required supporting components are missing |
+| A new chart drawn from the same CSV | May be yes | No: an original publisher visual is required |
+| The accepted chart, primary report, verified figure location, and CSV in one bundle | Yes | Yes |
 
-## Review and release
+The harness reports:
 
-Follow the [annotation guide](docs/ANNOTATION_GUIDE.md). The 100-entry candidate queue
-is discovery material; none of its entries is reviewed gold or attested holdout.
-Human reviews bind to record digests and become stale when a record changes.
+- Document, visual, primary-source, localization, and applicable-data recall.
+- Full Support and MRR of the first fully supporting result at K=1, 5, and 10,
+  where the configured result depth supports them.
+- Latency, reserved/reported cost, failures, and paired differences with 95%
+  intervals resampled by evidence family.
+- Rights, methodology, and reproducibility recall with applicable denominators;
+  these affect Full Support only when explicitly required by gold.
 
-```sh
-uv run vessel validate path/to/core-100.jsonl --release
-uv run vessel audit runs/core-100 --reviewer HUMAN_NAME --notes 'Independent failure audit'
-uv run vessel export runs/core-100 explorer/public/report.json --public-release
-npm --prefix explorer run build
-```
+Matching uses accepted URLs, exact hashes, source identifiers, verified locations,
+and recorded human adjudications. Perceptual hashes alone do not establish equivalence.
+PDF page indices and printed page labels remain distinct. Read the
+[scoring principles](SPEC.md) before interpreting a comparison.
 
-Public release rejects synthetic, unreviewed, unattested, incomplete or unaudited runs.
-A human audit binds to every archived response; changing receipts invalidates it. Domain
-publication follows independent validation; this repository does not deploy to
-`vessel.evidence8.com` automatically.
+## Evaluation protocols
 
-## Verification
+| Protocol | Retrieval allowance | Reporting boundary |
+|---|---|---|
+| **Search** | One request, up to ten ranked results | Retains native returned content; no additional shared fetch |
+| **Search + Fetch** | Search, then the first five eligible unique documents | Shared HTML/PDF extraction; figures retain their parent result rank |
+| **Evidence Retrieval** | Direct evidence bundles | Additional operations and requests are recorded |
 
-```sh
-uv run pytest -q
-uv run ruff check src scripts tests
-uv run ruff format --check src scripts tests
-npm --prefix explorer test
-npm --prefix explorer run build
-```
+Shared fetch defaults: 20 MiB/document, 60 seconds, 200 PDF pages, and 100,000
+extracted characters. Truncation and exhaustion are recorded. Extraction receives
+no gold. Compare matching benchmark versions and protocols; incomplete runs cannot
+become headline rankings.
 
-[Schemas](schemas/) define gold, normalized bundles/responses, adjudications and run
-manifests. Provider implementations cannot import gold/scoring. Full Support MRR
-refers to the first complete supporting bundle, not the first matching document.
+> **Provider characterization determines how a system is invoked, never what
+> constitutes success.**
 
-## Later milestones
+Adapters exist for [Evidence8](docs/providers/evidence8.md),
+[Keenable](docs/providers/keenable.md), [Exa](docs/providers/exa.md), and
+[Serper](docs/providers/serper.md). Their public interface profiles distinguish
+claims, observations, and unknowns; live integration verification remains pending.
+Evidence8 is one evaluated provider and does not supply benchmark ground truth.
+The Keenable + Evidence8 hybrid is a separately reported system with a documented
+[retrieval strategy](docs/RUNNING.md#hybrid-evaluation).
 
-Validated Core-100 → Core-500 → VESSEL-Live → Trace → Research. Internal Evidence8
-ablations require reproducible exposed configurations and are outside v0.1.
+## Data and release status
+
+| Artifact | Available now | Scientific status |
+|---|---|---|
+| [Synthetic pilot](data/synthetic-pilot.jsonl) | 20 fixture queries with synthetic gold | Software checks only; no provider-performance claim |
+| [Discovery queue](data/core-100-candidates.jsonl) | 100 candidate information needs | No reviewed gold or attested holdout membership |
+| **Core-100** | Planned: 100 independently reviewed queries | Not released |
+| [Explorer demo export](explorer/public/demo-report.json) | Downloadable JSON | Synthetic outcomes only |
+
+Core-100 targets ten queries in each of ten domains: economics, finance, energy,
+AI, climate, demographics, labor, housing, science, and policy. Its planned visual
+mix is 55 charts, 15 tables, 10 maps, 10 multi-panel figures, five diagrams, and five
+other visuals, with at least 40 attested external-holdout queries.
+
+Every evaluation query needs author approval and a distinct independent human
+reviewer. Index/version freeze precedes evaluation query authoring. Unknown corpus
+membership cannot support a headline holdout claim. Related queries stay grouped by
+evidence family. See [release gates and outstanding work](docs/IMPLEMENTATION_STATUS.md).
+
+Core-500, VESSEL-Live, Trace, and Research follow a validated Core-100 release.
+Publication at `vessel.evidence8.com` follows validation; the public explorer is not
+currently deployed.
+
+## Documentation and contributions
+
+| Need | Reference |
+|---|---|
+| Task definitions and success criteria | [Specification](SPEC.md) |
+| Fair invocation, scoring, and uncertainty | [Methodology](METHODOLOGY.md) |
+| Leakage, membership, and holdout rules | [Contamination policy](CONTAMINATION.md) |
+| Configure, resume, compare, audit, and export runs | [Running guide](docs/RUNNING.md) |
+| Author or independently review gold | [Annotation guide](docs/ANNOTATION_GUIDE.md) |
+| Understand normalized record shapes | [JSON schemas](schemas/) and [models](src/vessel/models.py) |
+| Understand provider capabilities | [Provider profiles](docs/providers/) and [Evidence8 study](docs/EVIDENCE8_STUDY.md) |
+| Add an adapter, report a failure, or improve documentation | [Contributing](CONTRIBUTING.md) |
+| Inspect what was verified | [QA evidence](qa-learnings/IMPLEMENTATION_QA.md) and [CI](https://github.com/richardsondx/VESSEL/actions/workflows/ci.yml) |
+
+Current contribution priorities are independent primary-evidence review, difficult
+visual retrieval cases, and sanitized adapter fixtures. The
+[contributor guide](CONTRIBUTING.md) explains the evidence each contribution needs.
+
+## Citation and rights
+
+Cite the software using [CITATION.cff](CITATION.cff). For an experiment, also identify
+the code commit, benchmark version, dataset hash, protocol, configuration, and run
+manifest. A citation to development software does not imply a validated benchmark
+release. Cite the primary publishers and datasets used in your analysis separately.
+
+Code is [Apache-2.0](LICENSE). Original VESSEL annotations are
+[CC BY 4.0](data/LICENSE). Source visuals and documents retain their own rights;
+VESSEL publishes references and hashes where redistribution is unavailable.
