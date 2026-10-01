@@ -1,5 +1,7 @@
 """Maps documented asset fields conservatively; missing facts stay unknown."""
 
+from urllib.parse import quote
+
 from vessel.adapters.base import HTTPProvider
 from vessel.models import Asset, Bundle, Dataset, EvidenceResult, Location, SearchResponse, Source
 
@@ -12,11 +14,11 @@ def mapping(value):
 
 def name(value):
     if isinstance(value, dict):
-        return value.get("name") or value.get("title")
+        return value.get("name") or value.get("title") or value.get("label")
     return value if isinstance(value, str) else None
 
 
-def normalize_asset(row: dict, rank: int) -> EvidenceResult:
+def normalize_asset(row: dict, rank: int, base: str = "") -> EvidenceResult:
     if not isinstance(row, dict):
         raise ValueError("candidate must be an object")
     asset = row.get("asset", row)
@@ -36,12 +38,18 @@ def normalize_asset(row: dict, rank: int) -> EvidenceResult:
         or asset.get("sourceUrl")
     )
     visual_url = delivery.get("assetUrl") or asset.get("imageUrl") or asset.get("assetUrl")
+    asset_id = asset.get("assetId") or asset.get("id")
+    if visual_url and visual_url.startswith("/"):
+        # The API serves local assets by identity, not at the browser's static path.
+        visual_url = (
+            f"{base}/v1/assets/{quote(asset_id, safe='')}/content" if base and asset_id else None
+        )
     data_url = delivery.get("dataUrl") or asset.get("dataUrl")
     # A provider's asserted sha/primary flag is not a computed or adjudicated identity.
     source = Source(
         document_url=source_url,
-        document_id=doc.get("id"),
-        document_title=name(doc),
+        document_id=doc.get("id") or provenance.get("documentId"),
+        document_title=name(doc) or name(provenance.get("document") or asset.get("document")),
         publisher=name(provenance.get("publisher") or asset.get("publisher")),
         published_at=provenance.get("publishedAt") or asset.get("publishedAt"),
         version=provenance.get("version"),
@@ -57,6 +65,8 @@ def normalize_asset(row: dict, rank: int) -> EvidenceResult:
         else None
     )
     rendition = asset.get("rendition") or identity.get("rendition") or "unknown"
+    if asset.get("assetMode") == "derived-from-source-data":
+        rendition = "generated"
     if rendition not in {"publisher", "crop", "capture", "generated", "unknown"}:
         rendition = "unknown"
     visual = Asset(url=visual_url, rendition=rendition) if visual_url else None
@@ -66,11 +76,11 @@ def normalize_asset(row: dict, rank: int) -> EvidenceResult:
         location=location,
         datasets=[Dataset(url=data_url)] if data_url else [],
         rights=name(delivery.get("rights") or asset.get("rights")),
-        derivation=asset.get("derivation"),
+        derivation=asset.get("derivation") or asset.get("renderingMethod"),
     )
     return EvidenceResult(
         rank=rank,
-        provider_id=asset.get("assetId") or asset.get("id"),
+        provider_id=asset_id,
         title=asset.get("title") or "",
         url=source_url,
         snippet=asset.get("description"),
@@ -106,5 +116,5 @@ class Evidence8(HTTPProvider):
             rows = [raw["selected"]]
         if not isinstance(rows, list):
             raise ValueError("missing candidate array")
-        results = [normalize_asset(row, rank) for rank, row in enumerate(rows[:k], 1)]
+        results = [normalize_asset(row, rank, self.base) for rank, row in enumerate(rows[:k], 1)]
         return SearchResponse(status="ok" if results else "no_match", results=results)

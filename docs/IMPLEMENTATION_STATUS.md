@@ -5,24 +5,37 @@ Status: **software verified; research and publication gates pending**.
 The repository contains a working offline harness, strict schemas, provider adapters,
 shared extraction, deterministic scoring, budgeted/resumable execution, diagnostic
 reports, human review/audit commands, offline CI and a React results explorer.
+The private browser review workspace adds draft authoring, source inspection,
+independent decisions, revision history, packet exchange and reviewed JSONL export.
+It records named human attestations locally; it is not a hosted account system.
 
 ## Release gates
 
 | Gate | Current evidence | Remaining work |
 |---|---|---|
 | Principles | Provider-independent principles committed before characterization; firewall in methodology | Version future substantive revisions equally for all providers |
-| Characterization | Public A–M Evidence8 study, all 36 registry/detail pages inspected, source hashes, four provider profiles | Configured workspace response audit; inaccessible examples and unknown fields remain explicitly unverified |
+| Characterization | Public A–M Evidence8 study, all 36 registry/detail pages inspected, source hashes, four provider profiles; local response mapping checked | Inaccessible examples and unknown fields remain explicitly unverified; full protocol audit pending |
 | Pilot | Twenty **synthetic software fixtures**, deterministic replay | Twenty real primary-evidence queries with author and independent human review |
 | Core-100 | One hundred **unreviewed discovery candidates**, schema and composition checks | Freeze index before authoring; verify gold and at least 40 holdout queries; independent review |
-| Validation | 81 backend tests; 10 explorer tests; local replay, resume, lint and production build pass | Full live protocol validation; capped comparisons; human failure audit |
+| Validation | 96 backend tests; 14 browser-logic tests; local replay, resume, lint and production build pass; review journeys checked on desktop/mobile; 30 live diagnostic responses replay identically | Full live protocol validation; scored comparisons; human failure audit |
 | Publication | Read-only artifact explorer and public-export rejection gates | Eligible audited Core-100 artifacts; deploy to vessel.evidence8.com after validation |
 
 No live benchmark evaluation has been run. A separate user-authorized connectivity
 check made one search each against Keenable and Exa; both returned three normalized
 results. Its $1 cap reserved $0.50 conservatively; Exa reported $0.007 and Keenable's
 dollar cost was unknown. This was not a comparative benchmark or scoring run.
-No human review or index attestation was invented. Missing configuration produces
-explicit skips; the local Evidence8 API was not reachable and Serper was unconfigured.
+On 2026-10-01, a separate ten-query discovery diagnostic made ten searches each
+against local Evidence8, Keenable and Exa at K=10. All 30 searches returned ten
+normalized results. Exa reported $0.070; Keenable's dollar cost remained unknown.
+The diagnostic reserved the remaining $0.50, reaching the session's $1 conservative
+cap including the earlier smoke test. No further paid calls are authorized by that
+cap. All saved responses passed integrity checks and identical offline normalization.
+
+No human review or pre-authoring index attestation was invented. An index hash and
+registry snapshot were captured before the diagnostic, but the discovery candidates
+already existed: this does not satisfy the pre-authoring freeze requirement. The local
+Evidence8 API is now reachable without a search key; Serper remains unconfigured.
+Local diagnostic reports and response artifacts stay in ignored `runs/` directories.
 
 ## Verification
 

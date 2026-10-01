@@ -1,6 +1,7 @@
 # Keenable characterization
 
-Date: 2026-09-30. Status: documentation characterized; one authenticated search smoke check passed.
+Date: 2026-10-01. Status: documentation characterized; authenticated smoke and
+ten-query search diagnostics passed. Full protocol validation remains pending.
 
 - Interface: `POST https://api.keenable.ai/v1/search`, `X-API-Key` header.
 - Claim/result types: ranked pages with URL, title, description, snippet and optional
@@ -25,3 +26,7 @@ shape; full protocol, failure and benchmark validation remain pending.
 Authenticated payloads and credentials are kept in ignored local artifacts.
 
 Tested settings: `mode: pro`, `max_results: 3`. Dollar cost was not returned.
+
+On 2026-10-01, ten unreviewed discovery queries with `mode: pro`, `max_results: 10`
+each returned ten normalized results. Saved responses normalize identically offline.
+Dollar cost was not returned. These observations do not establish retrieval quality.

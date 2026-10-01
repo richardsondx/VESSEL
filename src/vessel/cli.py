@@ -23,6 +23,22 @@ from vessel.runner import run as execute_run
 app = typer.Typer(no_args_is_help=True, help="Independent visual-evidence evaluation.")
 
 
+@app.command()
+def review_ui(
+    workspace: Path = Path(".private/review-workspace/workspace.json"),
+    port: int = 8788,
+):
+    """Open a private browser workspace for authoring and independent human review."""
+    from vessel.review_workspace import serve_review
+
+    assets = Path(__file__).resolve().parents[2] / "explorer/dist"
+    if not (assets / "index.html").exists():
+        fail("Build the browser application first: cd explorer && npm run build")
+    if not 1024 <= port <= 65535:
+        fail("Choose a port between 1024 and 65535.")
+    serve_review(workspace, assets, port)
+
+
 def fail(message: str):
     typer.echo(message, err=True)
     raise typer.Exit(1)

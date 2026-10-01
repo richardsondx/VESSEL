@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { displayName, loadDefaultReport, parseReport, percent } from "./report";
 import type { Cell, Report } from "./report";
 import "./style.css";
+import ReviewApp from "./ReviewApp";
 
 const repo = "https://github.com/richardsondx/VESSEL";
 function SourceLink({
@@ -146,6 +147,14 @@ function Inspector({
   );
 }
 export default function App() {
+  return window.location.pathname.startsWith("/review") ? (
+    <ReviewApp />
+  ) : (
+    <ExplorerApp />
+  );
+}
+
+function ExplorerApp() {
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -269,6 +278,15 @@ export default function App() {
         </span>
         <nav>
           <a href={`${repo}/blob/main/METHODOLOGY.md`}>Methodology ↗</a>
+          <a
+            href={
+              ["localhost", "127.0.0.1"].includes(window.location.hostname)
+                ? "http://127.0.0.1:8788/review"
+                : `${repo}/blob/main/docs/REVIEW_WORKSPACE.md`
+            }
+          >
+            Review workspace
+          </a>
           <a href={repo}>GitHub ↗</a>
         </nav>
       </header>

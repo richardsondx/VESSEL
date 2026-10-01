@@ -138,6 +138,38 @@ def test_metadata_envelope():
     assert len(b.datasets) == 1
 
 
+def test_local_evidence8_asset_and_generated_rendition(monkeypatch):
+    monkeypatch.setenv("EVIDENCE8_BASE_URL", "http://127.0.0.1:8787")
+    row = {
+        "id": "asset/chart",
+        "sourceUrl": "https://example.org/chart-page",
+        "assetMode": "derived-from-source-data",
+        "rendition": "publisher",
+        "renderingMethod": "SVG rendered from source CSV",
+        "metadata": {
+            "provenance": {"document": "Publisher report", "page": 7},
+            "delivery": {
+                "assetUrl": "/evidence/chart.svg",
+                "dataPath": "/data/raw/chart.csv",
+                "rights": {"label": "Attribution required"},
+            },
+        },
+    }
+    bundle = (
+        Evidence8(ProviderConfig(name="evidence8"))
+        .normalize({"status": "ok", "results": [row]}, 10)
+        .results[0]
+        .bundles[0]
+    )
+    assert str(bundle.visual.url) == "http://127.0.0.1:8787/v1/assets/asset%2Fchart/content"
+    assert bundle.visual.rendition == "generated"
+    assert bundle.derivation == "SVG rendered from source CSV"
+    assert bundle.source.document_title == "Publisher report"
+    assert bundle.rights == "Attribution required"
+    assert bundle.location is None
+    assert bundle.datasets == []  # A local file path is not a documented fetch URL.
+
+
 def test_malformed_response_is_error(context, monkeypatch):
     monkeypatch.setenv("EXA_API_KEY", "test")
     context.client = httpx.Client(

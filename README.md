@@ -180,7 +180,7 @@ currently deployed.
 | Fair invocation, scoring, and uncertainty | [Methodology](METHODOLOGY.md) |
 | Leakage, membership, and holdout rules | [Contamination policy](CONTAMINATION.md) |
 | Configure, resume, compare, audit, and export runs | [Running guide](docs/RUNNING.md) |
-| Author or independently review gold | [Annotation guide](docs/ANNOTATION_GUIDE.md) |
+| Author or independently review gold in the browser | [Review workspace](docs/REVIEW_WORKSPACE.md) · [Annotation guide](docs/ANNOTATION_GUIDE.md) |
 | Understand normalized record shapes | [JSON schemas](schemas/) and [models](src/vessel/models.py) |
 | Understand provider capabilities | [Provider profiles](docs/providers/) and [Evidence8 study](docs/EVIDENCE8_STUDY.md) |
 | Add an adapter, report a failure, or improve documentation | [Contributing](CONTRIBUTING.md) |
