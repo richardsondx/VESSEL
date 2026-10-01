@@ -1,0 +1,20 @@
+# Explicitly set a conservative per-call ceiling for each configured provider.
+# null means skip. A zero ceiling is valid only for a confirmed free/local interface.
+benchmark_version: development-v0.1
+protocol: search_fetch
+k: 10
+max_cost_usd: 0
+max_requests: 1000
+providers:
+  - name: evidence8
+    request_cost_ceiling_usd: null
+  - name: keenable
+    request_cost_ceiling_usd: null
+    mode: pro
+  - name: exa
+    request_cost_ceiling_usd: null
+    mode: auto
+  - name: serper
+    request_cost_ceiling_usd: null
+    country: us
+    language: en

@@ -1,0 +1,38 @@
+name: Offline verification
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  harness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.9.4'
+      - run: uv sync --frozen --python 3.12
+      - run: uv run ruff check src scripts tests
+      - run: uv run ruff format --check src scripts tests
+      - run: uv run pytest -q
+      - run: uv run vessel validate data/synthetic-pilot.jsonl
+      - run: uv run vessel run data/synthetic-pilot.jsonl configs/replay.yaml runs/ci --fixture tests/fixtures/replay.json
+      - run: uv run vessel replay runs/ci
+      - run: uv run vessel schemas
+      - run: git diff --exit-code schemas
+  explorer:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: explorer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: explorer/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

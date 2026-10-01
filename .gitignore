@@ -13,3 +13,4 @@ explorer/dist/
 explorer/public/report.json
 *.egg-info/
 .DS_Store
+*.tsbuildinfo

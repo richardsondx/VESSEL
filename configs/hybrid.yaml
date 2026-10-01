@@ -1,0 +1,14 @@
+# Example only: configure verified per-call ceilings and an explicit spending cap.
+# Each system is evaluated independently, including repeated underlying requests.
+benchmark_version: development-v0.1
+protocol: evidence
+k: 10
+max_cost_usd: 0
+max_requests: 1000
+providers:
+  - name: keenable
+    request_cost_ceiling_usd: null
+    mode: pro
+  - name: evidence8
+    request_cost_ceiling_usd: null
+  - name: keenable_evidence8

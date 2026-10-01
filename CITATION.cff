@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "Please cite this repository when using VESSEL. Development software does not constitute a validated benchmark release."
+title: "VESSEL: Visual Evidence Search & Source Evaluation Live"
+version: 0.1.0
+type: software
+license: Apache-2.0
+repository-code: "https://github.com/richardsondx/VESSEL"
+authors:
+  - name: "VESSEL contributors"

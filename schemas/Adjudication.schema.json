@@ -1,0 +1,45 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "bundle_sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Bundle Sha256",
+      "type": "string"
+    },
+    "decision": {
+      "enum": [
+        "equivalent",
+        "not_equivalent"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "evidence_id": {
+      "title": "Evidence Id",
+      "type": "string"
+    },
+    "query_id": {
+      "title": "Query Id",
+      "type": "string"
+    },
+    "reason": {
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    },
+    "reviewer": {
+      "title": "Reviewer",
+      "type": "string"
+    }
+  },
+  "required": [
+    "query_id",
+    "evidence_id",
+    "bundle_sha256",
+    "decision",
+    "reviewer",
+    "reason"
+  ],
+  "title": "Adjudication",
+  "type": "object"
+}

@@ -1,0 +1,10 @@
+benchmark_version: synthetic-demo-v0.1
+protocol: evidence
+k: 10
+max_cost_usd: 0
+max_requests: 1000
+providers:
+  - name: evidence8
+  - name: keenable
+  - name: exa
+  - name: serper

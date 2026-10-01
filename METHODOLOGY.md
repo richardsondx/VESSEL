@@ -46,3 +46,16 @@ design choices. Do not publish private endpoints, privileged-access observations
 secrets, infrastructure/security details, unpublished roadmaps or business strategy.
 Authenticated artifacts stay in ignored `.private/` or ignored `runs/`. Public
 fixtures are explicitly synthetic. Sanitization is required before redistribution.
+
+## Supplemental annotations and human audit
+
+Rights, methodology and reproducibility have independently reviewed accepted
+statements or reference URLs. Report recall and the applicable denominator separately;
+absence of an annotation is unknown, not a failed provider response. These dimensions
+enter Full Support only if explicitly required by the frozen gold alternative.
+A derivation narrative alone is not proof of reproducibility or redistribution rights.
+
+Before public export, a human audits the recorded comparison with `vessel audit`.
+The approval binds to the dataset, configuration, code and exact response receipts.
+Changing any of those invalidates approval. This command records a human decision;
+it does not replace independent annotation review or automatically certify results.

@@ -1,0 +1,440 @@
+{
+  "$defs": {
+    "Attestation": {
+      "additionalProperties": false,
+      "properties": {
+        "bucket": {
+          "default": "unknown",
+          "enum": [
+            "indexed",
+            "known_unindexed",
+            "external_holdout",
+            "unknown"
+          ],
+          "title": "Bucket",
+          "type": "string"
+        },
+        "evidence_reference": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence Reference"
+        },
+        "frozen_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Frozen At"
+        },
+        "index_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Index Version"
+        },
+        "provider": {
+          "default": "evidence8",
+          "title": "Provider",
+          "type": "string"
+        }
+      },
+      "title": "Attestation",
+      "type": "object"
+    },
+    "GoldAlternative": {
+      "additionalProperties": false,
+      "properties": {
+        "accepted_rights": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Accepted Rights",
+          "type": "array"
+        },
+        "authoritative_urls": {
+          "items": {
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Authoritative Urls",
+          "type": "array"
+        },
+        "data_available": {
+          "default": false,
+          "title": "Data Available",
+          "type": "boolean"
+        },
+        "datasets": {
+          "items": {
+            "$ref": "#/$defs/Identity"
+          },
+          "title": "Datasets",
+          "type": "array"
+        },
+        "document": {
+          "$ref": "#/$defs/Identity"
+        },
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "locations": {
+          "items": {
+            "$ref": "#/$defs/Location"
+          },
+          "title": "Locations",
+          "type": "array"
+        },
+        "methodology": {
+          "$ref": "#/$defs/Identity"
+        },
+        "original_required": {
+          "default": true,
+          "title": "Original Required",
+          "type": "boolean"
+        },
+        "reproducibility": {
+          "$ref": "#/$defs/Identity"
+        },
+        "required": {
+          "items": {
+            "enum": [
+              "document",
+              "visual",
+              "primary",
+              "localization",
+              "data",
+              "version",
+              "rights",
+              "methodology",
+              "reproducibility"
+            ],
+            "type": "string"
+          },
+          "title": "Required",
+          "type": "array",
+          "uniqueItems": true
+        },
+        "verification_notes": {
+          "default": "",
+          "title": "Verification Notes",
+          "type": "string"
+        },
+        "verification_urls": {
+          "items": {
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Verification Urls",
+          "type": "array"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "visual": {
+          "$ref": "#/$defs/Identity"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "document"
+      ],
+      "title": "GoldAlternative",
+      "type": "object"
+    },
+    "Identity": {
+      "additionalProperties": false,
+      "properties": {
+        "ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Ids",
+          "type": "array"
+        },
+        "sha256": {
+          "items": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "title": "Sha256",
+          "type": "array"
+        },
+        "urls": {
+          "items": {
+            "format": "uri",
+            "maxLength": 2083,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Urls",
+          "type": "array"
+        }
+      },
+      "title": "Identity",
+      "type": "object"
+    },
+    "Location": {
+      "additionalProperties": false,
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "figure": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Figure"
+        },
+        "locator": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Locator"
+        },
+        "page_index": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Index"
+        },
+        "page_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Label"
+        }
+      },
+      "title": "Location",
+      "type": "object"
+    },
+    "Review": {
+      "additionalProperties": false,
+      "properties": {
+        "content_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "approved",
+            "changes_requested"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        },
+        "reviewed_at": {
+          "format": "date-time",
+          "title": "Reviewed At",
+          "type": "string"
+        },
+        "reviewer": {
+          "title": "Reviewer",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "author",
+            "independent"
+          ],
+          "title": "Role",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reviewer",
+        "role",
+        "decision",
+        "content_sha256",
+        "reviewed_at"
+      ],
+      "title": "Review",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "alternatives": {
+      "items": {
+        "$ref": "#/$defs/GoldAlternative"
+      },
+      "minItems": 1,
+      "title": "Alternatives",
+      "type": "array"
+    },
+    "attestation": {
+      "$ref": "#/$defs/Attestation"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "domain": {
+      "enum": [
+        "economics",
+        "finance",
+        "energy",
+        "ai",
+        "climate",
+        "demographics",
+        "labor",
+        "housing",
+        "science",
+        "policy"
+      ],
+      "title": "Domain",
+      "type": "string"
+    },
+    "family_id": {
+      "title": "Family Id",
+      "type": "string"
+    },
+    "query": {
+      "minLength": 1,
+      "title": "Query",
+      "type": "string"
+    },
+    "query_id": {
+      "title": "Query Id",
+      "type": "string"
+    },
+    "query_type": {
+      "title": "Query Type",
+      "type": "string"
+    },
+    "reviews": {
+      "items": {
+        "$ref": "#/$defs/Review"
+      },
+      "title": "Reviews",
+      "type": "array"
+    },
+    "split": {
+      "default": "development",
+      "enum": [
+        "development",
+        "evaluation"
+      ],
+      "title": "Split",
+      "type": "string"
+    },
+    "synthetic": {
+      "default": false,
+      "title": "Synthetic",
+      "type": "boolean"
+    },
+    "visual_type": {
+      "enum": [
+        "chart",
+        "table",
+        "map",
+        "multi_panel",
+        "diagram",
+        "other"
+      ],
+      "title": "Visual Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "query_id",
+    "query",
+    "family_id",
+    "domain",
+    "visual_type",
+    "query_type",
+    "created_at",
+    "alternatives"
+  ],
+  "title": "GoldRecord",
+  "type": "object"
+}

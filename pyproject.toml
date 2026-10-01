@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vessel-benchmark"
+version = "0.1.0"
+description = "Visual Evidence Search & Source Evaluation Live"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+dependencies = ["pydantic>=2.10,<3", "httpx>=0.28,<1", "typer>=0.15,<1", "PyYAML>=6,<7", "beautifulsoup4>=4.12,<5", "pymupdf>=1.25,<2", "python-dotenv>=1,<2"]
+
+[project.scripts]
+vessel = "vessel.cli:app"
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vessel"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
