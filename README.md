@@ -63,6 +63,32 @@ Use a fresh run directory when changing code, dependencies, data, or configurati
 For an identical interrupted run, add `--resume`. See the
 [running guide](docs/RUNNING.md) for live configuration and release commands.
 
+## API configuration
+
+Offline replay and CI need **no API keys**. For live testing, copy
+[`.env.example`](.env.example) to an ignored `.env` in the repository root, or edit
+an existing `.env`. Exported environment variables take precedence.
+
+| Variable | Used by | Requirement |
+|---|---|---|
+| `EVIDENCE8_BASE_URL` | Evidence8 | Actual workspace HTTP API base; documented local default is `http://127.0.0.1:8787`. The public website is not an API base. |
+| `EVIDENCE8_API_KEY` | Evidence8 | Optional for the documented local API; set only if your workspace requires bearer authentication. |
+| `KEENABLE_API_KEY` | Keenable | Required by default; keyless access is an explicit configuration option. |
+| `EXA_API_KEY` | Exa | Required when evaluating Exa. |
+| `SERPER_API_KEY` | Google results through Serper | Required when evaluating Serper. |
+
+Check configuration without displaying keys or making provider requests:
+
+```sh
+uv run vessel doctor --config configs/live.yaml
+```
+
+A configured key does not enable spending: live runs also need explicit total
+budgets and per-request cost ceilings. Missing keys or ceilings produce recorded
+skips. VESSEL's deterministic scorer needs no LLM judge key. Keep keys in `.env`
+or your environment; the explorer receives exported reports only.
+See the [live running guide](docs/RUNNING.md#configure-live-providers).
+
 ## What we measure
 
 A document hit can point to the right report while missing the requested figure,

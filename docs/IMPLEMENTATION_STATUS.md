@@ -14,7 +14,7 @@ reports, human review/audit commands, offline CI and a React results explorer.
 | Characterization | Public A–M Evidence8 study, all 36 registry/detail pages inspected, source hashes, four provider profiles | Configured workspace response audit; inaccessible examples and unknown fields remain explicitly unverified |
 | Pilot | Twenty **synthetic software fixtures**, deterministic replay | Twenty real primary-evidence queries with author and independent human review |
 | Core-100 | One hundred **unreviewed discovery candidates**, schema and composition checks | Freeze index before authoring; verify gold and at least 40 holdout queries; independent review |
-| Validation | 78 backend tests; 10 explorer tests; local replay, resume, lint and production build pass | Configured live adapters; capped comparisons; human failure audit |
+| Validation | 81 backend tests; 10 explorer tests; local replay, resume, lint and production build pass | Configured live adapters; capped comparisons; human failure audit |
 | Publication | Read-only artifact explorer and public-export rejection gates | Eligible audited Core-100 artifacts; deploy to vessel.evidence8.com after validation |
 
 No live benchmark requests or paid calls were made. No human review or index

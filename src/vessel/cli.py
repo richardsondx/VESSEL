@@ -29,6 +29,59 @@ def fail(message: str):
 
 
 @app.command()
+def doctor(config: Path | None = None):
+    """Check local configuration without showing secrets or making API requests."""
+    import os
+
+    load_dotenv(Path.cwd() / ".env", override=False)
+    typer.echo("Configuration only: no API requests; credentials and connectivity unverified.")
+    for name in (
+        "EVIDENCE8_BASE_URL",
+        "EVIDENCE8_API_KEY",
+        "KEENABLE_API_KEY",
+        "EXA_API_KEY",
+        "SERPER_API_KEY",
+    ):
+        state = "set" if os.getenv(name, "").strip() else "not set"
+        if name == "EVIDENCE8_API_KEY" and state == "not set":
+            state = "not set (optional for the documented local API)"
+        typer.echo(f"{name}: {state}")
+    if config:
+        import yaml
+
+        from vessel.runner import load_config, providers_for
+
+        try:
+            settings = load_config(config)
+            providers = providers_for(settings, None)
+        except (ValueError, OSError, yaml.YAMLError):
+            fail("Could not read configuration; check YAML against the RunConfig schema.")
+        typer.echo(
+            f"Budget: ${settings.max_cost_usd:.4f}; maximum requests: {settings.max_requests}"
+        )
+        for setting in settings.providers:
+            provider = providers[setting.name]
+            if setting.name == "keenable_evidence8":
+                configured = (
+                    provider.search_provider.configured()
+                    and provider.evidence_provider.configured()
+                )
+                ceilings = (
+                    provider.search_provider.config.request_cost_ceiling_usd,
+                    provider.evidence_provider.config.request_cost_ceiling_usd,
+                )
+            else:
+                configured = provider.configured()
+                ceilings = (setting.request_cost_ceiling_usd,)
+            state = "configured" if configured else "missing configuration"
+            if any(c is None for c in ceilings):
+                state += "; skipped until request cost ceilings are configured"
+            elif any(c > settings.max_cost_usd for c in ceilings):
+                state += "; spending cap cannot cover one request"
+            typer.echo(f"{setting.name}: {state}")
+
+
+@app.command()
 def validate(dataset: Path, release: bool = False):
     """Validate records; --release enforces independently reviewed Core-100 gates."""
     try:
@@ -46,7 +99,7 @@ def run(
     dataset: Path, config: Path, output: Path, fixture: Path | None = None, resume: bool = False
 ):
     """Run configured providers or explicitly synthetic development fixtures."""
-    load_dotenv()
+    load_dotenv(Path.cwd() / ".env", override=False)
     try:
         manifest = execute_run(dataset, config, output, fixture, resume)
         generate_report(output)

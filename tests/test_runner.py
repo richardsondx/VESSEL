@@ -262,3 +262,60 @@ def test_changed_dependency_lock_cannot_resume(tmp_path, monkeypatch):
     monkeypatch.setattr("vessel.runner.dependency_lock_digest", lambda: "a" * 64)
     with pytest.raises(ValueError, match="dependency lock"):
         run(*args, resume=True)
+
+
+def test_doctor_loads_local_env_without_secrets_or_network(tmp_path, monkeypatch):
+    import os
+
+    import httpx
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(os, "environ", dict(os.environ))
+    for name in (
+        "EVIDENCE8_BASE_URL",
+        "EVIDENCE8_API_KEY",
+        "KEENABLE_API_KEY",
+        "EXA_API_KEY",
+        "SERPER_API_KEY",
+    ):
+        os.environ.pop(name, None)
+    (tmp_path / ".env").write_text(
+        "EVIDENCE8_BASE_URL=http://127.0.0.1:8787\nEXA_API_KEY=fixture-secret-value\n"
+    )
+    monkeypatch.setattr(
+        httpx.Client, "request", lambda *a, **k: pytest.fail("doctor made a request")
+    )
+    result = CliRunner().invoke(app, ["doctor", "--config", str(ROOT / "configs/live.yaml")])
+    assert result.exit_code == 0, result.output
+    assert "EXA_API_KEY: set" in result.output
+    assert "SERPER_API_KEY: not set" in result.output
+    assert "skipped until request cost ceilings" in result.output
+    assert "fixture-secret-value" not in result.output and "127.0.0.1" not in result.output
+    assert os.environ["EXA_API_KEY"] == "fixture-secret-value"
+
+
+def test_doctor_preserves_exported_env_and_redacts_bad_config(tmp_path, monkeypatch):
+    import os
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("EXA_API_KEY", "exported-fixture-secret")
+    (tmp_path / ".env").write_text("EXA_API_KEY=file-fixture-secret\n")
+    result = CliRunner().invoke(app, ["doctor"])
+    assert result.exit_code == 0
+    assert os.environ["EXA_API_KEY"] == "exported-fixture-secret"
+    assert "fixture-secret" not in result.output
+    bad = tmp_path / "bad.yaml"
+    bad.write_text("api_key: bad-config-fixture-secret\n")
+    result = CliRunner().invoke(app, ["doctor", "--config", str(bad)])
+    assert result.exit_code == 1
+    assert "bad-config-fixture-secret" not in result.output
+
+
+def test_doctor_redacts_malformed_yaml(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    path = tmp_path / "config.yaml"
+    path.write_text("providers: [\napi_key: malformed-fixture-secret\n")
+    result = CliRunner().invoke(app, ["doctor", "--config", str(path)])
+    assert result.exit_code == 1
+    assert "malformed-fixture-secret" not in result.output
+    assert "RunConfig schema" in result.output

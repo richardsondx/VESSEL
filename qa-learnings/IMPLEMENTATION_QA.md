@@ -3,7 +3,7 @@
 Recorded September 30, 2026 (America/Toronto). All provider traffic in software
 checks uses mock HTTP transports or clearly synthetic fixtures.
 
-- `uv run pytest -q`: **78 passed**. Identity/equivalence, original versus generated,
+- `uv run pytest -q`: **81 passed**. Identity/equivalence, original versus generated,
   precise localization, alternatives, coherence, version/data/supplemental dimensions,
   independent reviews, freeze/holdout requirements, duplicates, provider normalization,
   malformed/error responses, budgets, missing credentials, interrupted runs, persisted
@@ -37,3 +37,8 @@ pure-annotation warnings during Rollup. Neither failed a check.
 Live provider behavior, independent human annotations, freeze attestations, empirical
 leaderboards and domain publication remain unverified. GitHub CI results should be
 checked separately from these locally executed checks.
+
+Configuration follow-up: `vessel doctor` checks only set/missing state and budget
+prerequisites. Tests verify current-directory `.env` loading, exported-variable
+precedence, no network requests and no secret values in diagnostics or YAML errors.
+Local credential files remain ignored; no paid provider requests were made.

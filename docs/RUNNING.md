@@ -5,10 +5,23 @@ All commands below execute from the repository root.
 
 ## Configure live providers
 
-Copy `.env.example` to ignored `.env`. Evidence8 needs a configured workspace API
+Copy `.env.example` to ignored `.env` for a new checkout; preserve existing values
+when editing. The CLI loads this file from the current working directory; exported
+variables take precedence. Evidence8 needs a configured workspace API
 base URL; `evidence8.com` is not a hosted API base. Other adapters use their documented
 HTTP interfaces. Missing credentials skip only the corresponding provider. Keyless
 Keenable access is opt-in, not the default.
+
+The template defaults to `http://127.0.0.1:8787`; the local Evidence8 API must be
+running there. Its documented local interface needs no API key. A separately hosted
+workspace must expose the same API contract before it can be used as the base URL.
+
+```sh
+uv run vessel doctor --config configs/live.yaml
+```
+
+`doctor` prints set/missing status and budget prerequisites, never secret values.
+It makes no network calls and does not verify that a key or endpoint works.
 
 Copy `configs/live.yaml` to a run-specific configuration. Set conservative
 `request_cost_ceiling_usd` values and an explicit `max_cost_usd`/`max_requests` cap.
