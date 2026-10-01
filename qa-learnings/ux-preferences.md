@@ -30,3 +30,21 @@ QA rule: **Usable review handoff** — export must save a real local file and re
 its location even when the in-app browser does not expose a download event.
 Executable protection: `test_review_export_matches_python_digest_and_survives_reload`
 checks actual packet and JSONL files; browser export is checked against that output.
+
+## Prepared review inbox — 2026-10-01
+
+Exact feedback: "why should i write a specific questiojn? why they are not prepared
+for me in advance.. wasnt i supposed to review things fro the benchmark?"
+
+Confirmed product requirement: review begins with prepared questions and proposed
+primary evidence. Authoring is optional. The agent owns preparation; humans own
+verification and decisions. Scope: /review; this does not authorize fabricated
+reviewer identities, approvals or provider-derived gold.
+
+QA rule: **Review starts with prepared work**. Check actual inbox contents, not
+just form functionality. Preparation must preserve existing drafts and decisions,
+remain idempotent, and never count as a human review.
+Executable protection: `test_prepared_inbox_preserves_work_and_requires_two_humans`.
+Initial implementation has three real development proposals; this is a starter
+batch, not the twenty-query pilot or Core-100. Browser verification recorded in
+PREPARED_REVIEW.md. Confidence: explicit user correction.

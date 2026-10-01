@@ -20,10 +20,32 @@ Open <http://127.0.0.1:8788/review>. The service binds only to loopback. Its def
 workspace file is `.private/review-workspace/workspace.json`, excluded from Git.
 Use `--workspace PATH` or `--port PORT` for a separate workspace.
 
-## Author a task
+## Review prepared benchmark tasks
 
-1. Enter your actual reviewer name and select **Task author**.
-2. Choose **New task**. Start from primary publisher evidence independently of
+The repository includes three real, source-linked development proposals. Starting
+`vessel review-ui` loads them into the inbox without replacing existing work. These
+are AI-assisted proposals, not approved gold or the twenty-query pilot.
+
+1. Enter your actual name and select **First reviewer / task author**.
+2. Select a prepared question and click **Start first review**. This assigns the
+   first human review to you; it records no approval.
+3. Read the proposed question. Open the publisher page, visual and data links.
+   Check whether they answer the question and whether the required components are fair.
+4. In **Decision & history**, complete the five checks, add your verification notes,
+   confirm your own human review, then approve or request changes.
+5. Send the exported packet to a different human for the independent review below.
+
+You do not need to write questions or enter evidence links for prepared tasks.
+If a proposal is wrong, request changes or edit it before approval. Preparation
+is distinct from human verification; no AI identity counts as a reviewer. The
+initial batch uses one visual publisher and cannot establish broad coverage,
+external holdout, or Core-100 readiness. Its dynamic endpoints have no frozen
+data vintage; check current metadata before approving.
+
+## Author a custom task
+
+1. Enter your actual reviewer name and select **First reviewer / task author**.
+2. Choose **Author custom task**. Start from primary publisher evidence independently of
    provider output, following the [annotation guide](ANNOTATION_GUIDE.md).
 3. Write the question and specify domain, visual type and evidence family.
 4. Add acceptable answers. Identify the document and exact visual, verify the

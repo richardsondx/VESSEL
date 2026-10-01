@@ -152,7 +152,7 @@ function Evidence({ alternative: a }: { alternative: Alternative }) {
           </p>
         ))}
       <details>
-        <summary>Verified identities & source references</summary>
+        <summary>Identity & source references</summary>
         <pre>
           {JSON.stringify(
             {
@@ -195,6 +195,7 @@ export default function ReviewApp() {
   const [notes, setNotes] = useState("");
   const [human, setHuman] = useState(false);
   const task = workspace?.tasks.find((t) => t.record.query_id === selectedId);
+  const prepared = task?.author === "VESSEL AI preparation — no human approval";
   const canEdit = !!task && role === "author" && samePerson(name, task.author);
   const matchesRole =
     !!task &&
@@ -206,7 +207,7 @@ export default function ReviewApp() {
 
   const accept = (w: Workspace, id = selectedId) => {
     setWorkspace(w);
-    const t = w.tasks.find((t) => t.record.query_id === id);
+    const t = w.tasks.find((t) => t.record.query_id === id) ?? w.tasks[0];
     setSelectedId(t?.record.query_id ?? "");
     setDraft(t ? structuredClone(t.record) : null);
     setDirty(false);
@@ -261,7 +262,7 @@ export default function ReviewApp() {
   const choose = (t: Task) => {
     if (!discard()) return;
     accept(workspace!, t.record.query_id);
-    setStep("evidence");
+    setStep("decision");
     setError("");
     setNotice("");
   };
@@ -303,6 +304,15 @@ export default function ReviewApp() {
         "Draft saved on this computer. Any changed content needs fresh approvals.",
       );
     });
+  const claim = () => execute(async () => {
+    const w = await reviewRequest<Workspace>("claim", {
+      reviewer: name, task_id: selectedId, revision: task?.revision,
+    });
+    accept(w);
+    setRole("author");
+    setStep("decision");
+    setNotice("Ready for your first human review. Inspect the proposed answer and sources, then approve or request changes. No approval has been recorded.");
+  });
   const decide = (decision: string) =>
     execute(async () => {
       if (dirty) throw Error("Save your draft before recording a decision.");
@@ -443,7 +453,7 @@ export default function ReviewApp() {
                   }
                 }}
               >
-                <option value="author">Task author</option>
+                <option value="author">First reviewer / task author</option>
                 <option value="independent">Independent reviewer</option>
               </select>
             </label>
@@ -505,7 +515,7 @@ export default function ReviewApp() {
                     disabled={busy || !name.trim() || role !== "author"}
                     onClick={() => void create()}
                   >
-                    + New task
+                    + Author custom task
                   </button>
                 </div>
                 <input
@@ -551,7 +561,7 @@ export default function ReviewApp() {
                   <p className="muted">
                     {workspace.tasks.length
                       ? "No tasks match these filters."
-                      : "Your first task starts here. Enter your name, then choose New task."}
+                      : "No prepared tasks are loaded. Start the service from the VESSEL repository, or import a prepared packet."}
                   </p>
                 )}
               </aside>
@@ -565,19 +575,17 @@ export default function ReviewApp() {
                       with a verified answer.
                     </h2>
                     <p>
-                      Create a task from a primary publisher's evidence, or
-                      import a packet from its author.
+                      Select a prepared question from the inbox. Its proposed answer and primary evidence are ready for you to inspect.
                     </p>
                     <ol>
-                      <li>Write a specific information need.</li>
+                      <li>Read the prepared question.</li>
                       <li>
-                        Identify its evidence and acceptable alternatives.
+                        Open the proposed evidence and check acceptable alternatives.
                       </li>
                       <li>Verify it independently before scoring.</li>
                     </ol>
                     <p className="muted">
-                      The workspace starts empty. Discovery results and
-                      synthetic demo scores are not pre-approved gold.
+                      Preparation creates drafts, never human approvals. You can also author a custom task when needed.
                     </p>
                   </div>
                 ) : (
@@ -604,6 +612,14 @@ export default function ReviewApp() {
                         </button>
                       )}
                     </div>
+                    {prepared && (
+                      <aside className="blind-notice">
+                        <strong>Prepared for your review.</strong> This question, proposed answer and source links were prepared with AI assistance. Check them yourself; nothing has been approved.
+                        <button className="review-primary" disabled={busy || !name.trim()} onClick={() => void claim()}>
+                          Start first review
+                        </button>
+                      </aside>
+                    )}
                     {dirty && (
                       <p className="unsaved" role="status">
                         Unsaved changes — save before switching tasks, reviewing
@@ -1063,7 +1079,7 @@ export default function ReviewApp() {
                               Index membership:{" "}
                               {draft.attestation.bucket.replaceAll("_", " ")}
                             </p>
-                            {role === "author" && (
+                            {role === "author" && !prepared && (
                               <p>
                                 Enter the task author's name to edit. Otherwise
                                 switch to independent review.
@@ -1121,7 +1137,7 @@ export default function ReviewApp() {
                               </ul>
                             </details>
                           )}
-                          {!matchesRole && (
+                          {!matchesRole && !prepared && (
                             <p className="readiness">
                               {role === "independent"
                                 ? "A different person must independently review this task. Enter that reviewer’s name."

@@ -51,7 +51,11 @@ def decision(store, task, reviewer="Alice", role="author", outcome="approved", *
         "notes": "Synthetic workflow test; not a real human approval.",
         "human_attestation": True,
     }
-    return store.mutate("decision", {**body, **overrides})["tasks"][0]
+    return next(
+        t
+        for t in store.mutate("decision", {**body, **overrides})["tasks"]
+        if t["record"]["query_id"] == task["record"]["query_id"]
+    )
 
 
 def test_review_export_matches_python_digest_and_survives_reload(store, tmp_path):
@@ -257,3 +261,52 @@ def test_loopback_http_service_protects_writes_and_serves_review_route(tmp_path)
         server.shutdown()
         thread.join(timeout=2)
         server.server_close()
+
+
+def test_prepared_inbox_preserves_work_and_requires_two_humans(store):
+    from vessel.review_workspace import PREPARER, DraftRecord
+
+    original = store.mutate("create", {"reviewer": "Existing author"})["tasks"][0]
+    records = [
+        DraftRecord.model_validate_json(line)
+        for line in Path("data/prepared-review-development.jsonl").read_text().splitlines()
+    ]
+    view = store.load_prepared(records)
+    assert len(view["tasks"]) == 4
+    assert view["tasks"][0] == original
+    assert store.load_prepared(records) == view
+    for task in view["tasks"][1:]:
+        assert task["author"] == PREPARER
+        assert task["status"] == "draft"
+        assert task["issues"] == []
+        assert task["record"]["reviews"] == []
+        assert task["record"]["split"] == "development"
+        assert task["record"]["attestation"]["bucket"] == "unknown"
+    task = view["tasks"][1]
+    with pytest.raises(ValueError):
+        decision(store, task, reviewer="Alice")
+    view = store.mutate(
+        "claim",
+        {"reviewer": "Alice", "task_id": task["record"]["query_id"], "revision": task["revision"]},
+    )
+    task = view["tasks"][1]
+    assert task["author"] == "Alice"
+    assert task["status"] == "draft"
+    assert task["record"]["reviews"] == []
+    assert task["history"][0]["kind"] == "prepared"
+    with pytest.raises(ValueError, match="unassigned"):
+        store.mutate(
+            "claim",
+            {
+                "reviewer": "Bob",
+                "task_id": task["record"]["query_id"],
+                "revision": task["revision"],
+            },
+        )
+    # Simulated approvals remain test-only: no production workspace is modified.
+    task = decision(store, task)
+    assert task["status"] == "awaiting_review"
+    with pytest.raises(ValueError):
+        decision(store, task, reviewer="Alice", role="independent")
+    assert decision(store, task, reviewer="Bob", role="independent")["status"] == "approved"
+    assert store.load_prepared(records)["tasks"][1]["author"] == "Alice"

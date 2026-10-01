@@ -16,6 +16,7 @@ from vessel.datasets import validate_dataset
 from vessel.models import GoldAlternative, GoldRecord, Model, Review
 
 CHECKS = {"source", "identity", "query", "alternatives", "requirements"}
+PREPARER = "VESSEL AI preparation — no human approval"
 
 
 class DraftAlternative(GoldAlternative):
@@ -164,6 +165,40 @@ class ReviewStore:
                 "tasks": [public_task(t) for t in workspace.tasks],
             }
 
+    def load_prepared(self, records: list[DraftRecord]):
+        """Add source-grounded proposals, preserving all existing tasks and decisions."""
+        with self.lock:
+            workspace = self.read()
+            ids = {t.record.query_id for t in workspace.tasks}
+            for record in records:
+                if record.query_id in ids:
+                    continue
+                if record.reviews or record.synthetic or record.split != "development":
+                    raise ValueError(
+                        "Prepared proposals must be unreviewed real development tasks."
+                    )
+                task = Task(record=record, author=PREPARER)
+                if readiness(task):
+                    raise ValueError("Prepared proposal is incomplete: " + record.query_id)
+                task.history.append(
+                    Event(
+                        at=datetime.now(UTC).isoformat(),
+                        kind="prepared",
+                        reviewer=PREPARER,
+                        note=(
+                            "AI-assisted primary-source preparation; "
+                            "no human verification or approval."
+                        ),
+                        content_sha256=record.content_digest(),
+                    )
+                )
+                workspace.tasks.append(task)
+                ids.add(record.query_id)
+            Workspace.model_validate(workspace.model_dump())
+            if len(workspace.tasks) != len(self.read().tasks):
+                self.write(workspace)
+            return self.view()
+
     def mutate(self, action: str, body: dict):
         with self.lock:
             workspace = self.read()
@@ -192,7 +227,15 @@ class ReviewStore:
                     raise ValueError("Task not found.")
                 if task.revision != body.get("revision"):
                     raise ValueError("This task changed in another window. Reload before saving.")
-                if action == "save":
+                if action == "claim":
+                    if task.author != PREPARER or task.record.reviews:
+                        raise ValueError(
+                            "Only unassigned prepared drafts can be taken for first review."
+                        )
+                    if identity(reviewer) == identity(PREPARER):
+                        raise ValueError("Enter your own human reviewer name.")
+                    task.author = reviewer
+                elif action == "save":
                     if identity(reviewer) != identity(task.author):
                         raise ValueError(
                             "Only this task's author can edit. Request changes instead."
@@ -421,6 +464,15 @@ def review_server(path: Path, assets: Path, port: int = 8788):
 
 
 def serve_review(path: Path, assets: Path, port: int = 8788):
+    proposals = Path(__file__).resolve().parents[2] / "data/prepared-review-development.jsonl"
+    if proposals.is_file():
+        ReviewStore(path).load_prepared(
+            [
+                DraftRecord.model_validate_json(line)
+                for line in proposals.read_text().splitlines()
+                if line.strip()
+            ]
+        )
     server = review_server(path, assets, port)
     print(f"Private review workspace: http://127.0.0.1:{server.server_port}/review", flush=True)
     try:
