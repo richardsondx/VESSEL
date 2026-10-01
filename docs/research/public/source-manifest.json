@@ -1,0 +1,42 @@
+[
+  {
+    "url": "https://evidence8.com/llms.txt",
+    "retrieved_at": "2026-10-01T02:44:12.649566+00:00",
+    "sha256": "0ee2ed28214be1dc24f4acb1facbb3a94be9667e30adaaa963d328bfeb3e085b",
+    "bytes": 2033,
+    "method": "anonymous HTTP GET",
+    "redistributed": false
+  },
+  {
+    "url": "https://evidence8.com/agents.md",
+    "retrieved_at": "2026-10-01T02:44:12.801304+00:00",
+    "sha256": "e5d0317d1daa664ba2d8c561cbd2f9db1ae0e3115551e01d949235d5b97f545c",
+    "bytes": 4208,
+    "method": "anonymous HTTP GET",
+    "redistributed": false
+  },
+  {
+    "url": "https://evidence8.com/docs/api-reference.md",
+    "retrieved_at": "2026-10-01T02:44:12.987199+00:00",
+    "sha256": "9bff6738a8ca7401f7694aa87a4362f32b6845893e025e6b6405a9cd3b22af86",
+    "bytes": 2524,
+    "method": "anonymous HTTP GET",
+    "redistributed": false
+  },
+  {
+    "url": "https://evidence8.com/docs/metadata.md",
+    "retrieved_at": "2026-10-01T02:44:13.108960+00:00",
+    "sha256": "6acd15f243fda2b88c7b58ee6ee4a81c1dbd59069cce3c3098886e4852b749ec",
+    "bytes": 1752,
+    "method": "anonymous HTTP GET",
+    "redistributed": false
+  },
+  {
+    "url": "https://docs.keenable.ai/api-reference/search.md",
+    "retrieved_at": "2026-10-01T02:44:13.305255+00:00",
+    "sha256": "ede852a3cd4f9cda2bbce3cc3d79ce9d7d19292157fe0418859dc151ec6e5b54",
+    "bytes": 7931,
+    "method": "anonymous HTTP GET",
+    "redistributed": false
+  }
+]
