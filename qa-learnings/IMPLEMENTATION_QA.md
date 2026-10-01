@@ -34,7 +34,7 @@ Browser journeys in the Codex in-app browser:
 Non-blocking toolchain messages: PyMuPDF SWIG deprecation warnings and upstream Zod
 pure-annotation warnings during Rollup. Neither failed a check.
 
-Live provider behavior, independent human annotations, freeze attestations, empirical
+Full live protocol validation, independent human annotations, freeze attestations, empirical
 leaderboards and domain publication remain unverified. GitHub CI results should be
 checked separately from these locally executed checks.
 
@@ -52,5 +52,4 @@ Each request reserved $0.25; total reservation was $0.50. Exa reported $0.007;
 Keenable supplied no dollar cost. Provider-reported costs are not audited invoices.
 The response artifacts and reservation manifest remain under ignored `runs/`.
 Evidence8's public `/v1/search` URL served HTML, not an API response; the configured
-local API was not running. No Serper key was found in the inspected local SEOBeaver
-configuration, and no Serper request was made.
+local API was not running. Serper credentials were unconfigured, and no Serper request was made.
