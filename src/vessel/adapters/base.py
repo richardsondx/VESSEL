@@ -48,6 +48,7 @@ class HTTPProvider:
     default_base = ""
     path = ""
     header = "X-API-Key"
+    method = "POST"
 
     def __init__(self, config: ProviderConfig):
         self.config = config
@@ -67,6 +68,15 @@ class HTTPProvider:
     def payload(self, query: str, k: int) -> dict:
         raise NotImplementedError
 
+    def params(self, query: str, k: int) -> dict:
+        raise NotImplementedError
+
+    def header_value(self) -> str:
+        return self.key
+
+    def extra_headers(self) -> dict:
+        return {}
+
     def normalize(self, raw: dict, k: int) -> SearchResponse:
         raise NotImplementedError
 
@@ -83,16 +93,25 @@ class HTTPProvider:
             return SearchResponse(
                 status="budget_exhausted", reason="request or spending cap reached"
             )
-        headers = {self.header: self.key} if self.key else {}
+        headers = {self.header: self.header_value()} if self.key else {}
         path = self.path
         if self.name == "keenable" and not self.key and self.config.keyless:
             path += "/public"
             headers["X-Keenable-Title"] = "VESSEL"
+        headers.update(self.extra_headers())
         observations = []
         try:
-            response = context.client.post(
-                self.base + path, json=self.payload(query, k), headers=headers, timeout=30
-            )
+            if self.method == "POST":
+                response = context.client.post(
+                    self.base + path, json=self.payload(query, k), headers=headers, timeout=30
+                )
+            else:
+                response = context.client.get(
+                    self.base + path,
+                    params=self.params(query, k),
+                    headers=headers,
+                    timeout=30,
+                )
             response.raise_for_status()
             raw = response.json()
             if not isinstance(raw, dict):

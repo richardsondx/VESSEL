@@ -274,7 +274,31 @@ class FetchLimits(Model):
 
 
 class ProviderConfig(Model):
-    name: Literal["evidence8", "keenable", "exa", "serper", "keenable_evidence8"]
+    name: Literal[
+        "evidence8",
+        "keenable",
+        "exa",
+        "serper",
+        "keenable_evidence8",
+        "exa_evidence8",
+        "serper_evidence8",
+        "brave",
+        "brave-llmcontext",
+        "you",
+        "tavily",
+        "perplexity",
+        "perplexity-fast",
+        "kagi",
+        "linkup",
+        "firecrawl",
+        "parallel",
+        "parallel-turbo",
+        "bing-searchapi",
+        "jina",
+        "context-dev",
+        "octen",
+        "tinyfish",
+    ]
     request_cost_ceiling_usd: float | None = Field(default=None, ge=0)
     mode: str | None = None
     corpus: str = "all"

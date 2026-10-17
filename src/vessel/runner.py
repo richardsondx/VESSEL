@@ -9,7 +9,25 @@ import yaml
 
 from vessel.adapters.base import ArtifactStore, Budget, Context, ReplayProvider
 from vessel.adapters.evidence8 import Evidence8
-from vessel.adapters.hybrid import KeenableEvidence8
+from vessel.adapters.hybrid import ExaEvidence8, KeenableEvidence8, SerperEvidence8
+from vessel.adapters.tier2 import (
+    BingSearchApi,
+    Brave,
+    BraveLLMContext,
+    ContextDev,
+    Firecrawl,
+    Jina,
+    Kagi,
+    Linkup,
+    Octen,
+    Parallel,
+    ParallelTurbo,
+    Perplexity,
+    PerplexityFast,
+    Tavily,
+    Tinyfish,
+    You,
+)
 from vessel.adapters.web import Exa, Keenable, Serper
 from vessel.artifacts import atomic_json
 from vessel.datasets import dataset_digest, load_dataset, validate_dataset
@@ -18,6 +36,31 @@ from vessel.identity import canonical_url
 from vessel.models import Protocol, RunConfig, RunManifest, SearchResponse, digest
 
 ROOT = Path(__file__).resolve().parents[2]
+
+TIER2 = {
+    "brave": Brave,
+    "brave-llmcontext": BraveLLMContext,
+    "you": You,
+    "tavily": Tavily,
+    "perplexity": Perplexity,
+    "perplexity-fast": PerplexityFast,
+    "kagi": Kagi,
+    "linkup": Linkup,
+    "firecrawl": Firecrawl,
+    "parallel": Parallel,
+    "parallel-turbo": ParallelTurbo,
+    "bing-searchapi": BingSearchApi,
+    "jina": Jina,
+    "context-dev": ContextDev,
+    "octen": Octen,
+    "tinyfish": Tinyfish,
+}
+
+HYBRID_SEARCH = {
+    "keenable_evidence8": ("keenable", KeenableEvidence8),
+    "exa_evidence8": ("exa", ExaEvidence8),
+    "serper_evidence8": ("serper", SerperEvidence8),
+}
 
 
 def code_payload() -> dict:
@@ -43,20 +86,29 @@ def providers_for(config: RunConfig, fixture: Path | None):
     for setting in config.providers:
         if fixture:
             provider = ReplayProvider(setting.name, fixture)
-        elif setting.name == "keenable_evidence8":
-            if "keenable" not in by_name or "evidence8" not in by_name:
-                raise ValueError("hybrid requires keenable and evidence8 cost/config entries")
+        elif setting.name in HYBRID_SEARCH:
+            search_name, hybrid_cls = HYBRID_SEARCH[setting.name]
+            if search_name not in by_name or "evidence8" not in by_name:
+                raise ValueError(
+                    f"hybrid requires {search_name} and evidence8 cost/config entries"
+                )
             if config.protocol != Protocol.EVIDENCE:
                 raise ValueError(
                     "hybrid is only eligible for the separately reported evidence protocol"
                 )
-            provider = KeenableEvidence8(by_name["keenable"], by_name["evidence8"])
+            provider = hybrid_cls(by_name[search_name], by_name["evidence8"])
         else:
-            provider = {"evidence8": Evidence8, "keenable": Keenable, "exa": Exa, "serper": Serper}[
-                setting.name
-            ](setting)
+            provider = {
+                "evidence8": Evidence8,
+                "keenable": Keenable,
+                "exa": Exa,
+                "serper": Serper,
+                **TIER2,
+            }[setting.name](setting)
         profile_names = (
-            ["keenable", "evidence8"] if setting.name == "keenable_evidence8" else [setting.name]
+            [HYBRID_SEARCH[setting.name][0], "evidence8"]
+            if setting.name in HYBRID_SEARCH
+            else [setting.name]
         )
         if not all((ROOT / "docs/providers" / f"{name}.md").exists() for name in profile_names):
             raise ValueError("provider characterization missing")

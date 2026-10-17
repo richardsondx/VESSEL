@@ -1,17 +1,15 @@
 from vessel.adapters.base import Context
 from vessel.adapters.evidence8 import Evidence8
-from vessel.adapters.web import Keenable
+from vessel.adapters.web import Exa, Keenable, Serper
 from vessel.identity import canonical_url
 from vessel.models import Observation, ProviderConfig, SearchResponse
 
 
-class KeenableEvidence8:
+class SearchEvidenceHybrid:
     """Document-conditioned query search, not a claim of native document enrichment."""
 
-    name = "keenable_evidence8"
-
-    def __init__(self, search_config: ProviderConfig, evidence_config: ProviderConfig):
-        self.search_provider = Keenable(search_config)
+    def __init__(self, search_cls, search_config: ProviderConfig, evidence_config: ProviderConfig):
+        self.search_provider = search_cls(search_config)
         self.evidence_provider = Evidence8(evidence_config)
 
     def search(self, query: str, k: int, context: Context) -> SearchResponse:
@@ -52,3 +50,24 @@ class KeenableEvidence8:
                     if canonical_url(bundle.source.document_url) == url:
                         document.bundles.append(bundle)
         return result
+
+
+class KeenableEvidence8(SearchEvidenceHybrid):
+    name = "keenable_evidence8"
+
+    def __init__(self, search_config: ProviderConfig, evidence_config: ProviderConfig):
+        super().__init__(Keenable, search_config, evidence_config)
+
+
+class ExaEvidence8(SearchEvidenceHybrid):
+    name = "exa_evidence8"
+
+    def __init__(self, search_config: ProviderConfig, evidence_config: ProviderConfig):
+        super().__init__(Exa, search_config, evidence_config)
+
+
+class SerperEvidence8(SearchEvidenceHybrid):
+    name = "serper_evidence8"
+
+    def __init__(self, search_config: ProviderConfig, evidence_config: ProviderConfig):
+        super().__init__(Serper, search_config, evidence_config)

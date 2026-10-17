@@ -57,6 +57,19 @@ def doctor(config: Path | None = None):
         "KEENABLE_API_KEY",
         "EXA_API_KEY",
         "SERPER_API_KEY",
+        "BRAVE_API_KEY",
+        "YDC_API_KEY",
+        "TAVILY_API_KEY",
+        "PERPLEXITY_API_KEY",
+        "KAGI_API_KEY",
+        "LINKUP_API_KEY",
+        "FIRECRAWL_API_KEY",
+        "PARALLEL_API_KEY",
+        "SEARCHAPI_API_KEY",
+        "JINA_API_KEY",
+        "CONTEXT_DEV_API_KEY",
+        "OCTEN_API_KEY",
+        "TINYFISH_API_KEY",
     ):
         state = "set" if os.getenv(name, "").strip() else "not set"
         if name == "EVIDENCE8_API_KEY" and state == "not set":
@@ -77,7 +90,7 @@ def doctor(config: Path | None = None):
         )
         for setting in settings.providers:
             provider = providers[setting.name]
-            if setting.name == "keenable_evidence8":
+            if setting.name in ("keenable_evidence8", "exa_evidence8", "serper_evidence8"):
                 configured = (
                     provider.search_provider.configured()
                     and provider.evidence_provider.configured()
