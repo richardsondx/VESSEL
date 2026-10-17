@@ -100,17 +100,23 @@ class HTTPProvider:
             headers["X-Keenable-Title"] = "VESSEL"
         headers.update(self.extra_headers())
         observations = []
+        # Transport timeout is generous on purpose: provider latency is a
+        # measured dimension of the benchmark, and truncating slow providers
+        # would bias results. Observed 2026-10-17: sandbox egress runs ~10x
+        # slower than published p50s, and perplexity/firecrawl/parallel-turbo
+        # consistently need 35-50s.
+        transport_timeout = 120
         try:
             if self.method == "POST":
                 response = context.client.post(
-                    self.base + path, json=self.payload(query, k), headers=headers, timeout=30
+                    self.base + path, json=self.payload(query, k), headers=headers, timeout=transport_timeout
                 )
             else:
                 response = context.client.get(
                     self.base + path,
                     params=self.params(query, k),
                     headers=headers,
-                    timeout=30,
+                    timeout=transport_timeout,
                 )
             response.raise_for_status()
             raw = response.json()
