@@ -26,35 +26,50 @@ from vessel.models import SearchResponse  # noqa: E402
 MCP_URL = "https://evidence8.com/mcp"
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 
-# Corpora the agent may target. Slugs verified against the live corpus
-# directory (the /v1/corpora endpoint omits several searchable corpora).
-KNOWN_CORPORA = [
-    "macro-public-data",      # FRED (124 visuals)
-    "world-bank",             # World Bank Indicators (100 charts)
-    "sec-filing-visuals",     # SEC Filing Visuals
-    "iea-data",               # IEA Energy Charts
-    "bls-data",
-    "imf-weo",
-    "our-world-in-data",
-    "census-visualizations",
-    "unep-emissions-gap",
-    "ipcc-wg3-ar6",
-    "treasury-fiscal-data",
-    "zillow-housing-data",
-    "ghsl",
-]
+# Corpora the agent may target. Slugs and display names verified against the
+# live corpus directory (https://evidence8.com/corpora). Note: the /v1/corpora
+# API endpoint omits several searchable corpora, so this list is authoritative.
+CORPORA = {
+    "macro-public-data": "FRED",
+    "world-bank": "World Bank Indicators",
+    "sec-filing-visuals": "SEC Filing Visuals",
+    "investor-relations": "Company Investor Relations",
+    "iea-data": "IEA Energy Charts",
+    "ember": "Ember Energy",
+    "eia": "U.S. Energy Information Administration",
+    "eurostat": "Eurostat",
+    "statistics-canada": "Statistics Canada",
+    "epoch-ai": "Epoch AI",
+    "ghsl": "GHSL Urban Centre Database",
+    "bls-data": "U.S. Bureau of Labor Statistics",
+    "imf-weo": "IMF World Economic Outlook",
+    "our-world-in-data": "Our World in Data",
+    "census-visualizations": "U.S. Census Visualizations",
+    "unep-emissions-gap": "UNEP Emissions Gap Report",
+    "ipcc-wg3-ar6": "IPCC AR6 Working Group III",
+    "treasury-fiscal-data": "U.S. Treasury Fiscal Data",
+    "ecb-data-portal": "ECB Data Portal",
+    "cbo-budget": "CBO Budget and Economic Outlook",
+    "zillow-housing-data": "Zillow Housing Data",
+    "pew-research": "Pew Research Center",
+    "us-drought-monitor": "U.S. Drought Monitor",
+    "cred-canada": "CRED Canadian Research Economic Data",
+}
+KNOWN_CORPORA = list(CORPORA.keys())
 
 REFORMULATE_PROMPT = """You reformulate visual-evidence search queries for a deterministic lexical search engine.
 
 The engine matches on keyword coverage (at least 62% of query keywords must appear in the indexed text). Long natural-language questions FAIL. Short keyword phrases SUCCEED.
 
-Given the user query, produce 2-3 short keyword searches (3-6 words each), each optionally naming the most relevant corpus slug from this list: {corpora}.
+Given the user query, produce 2-3 short keyword searches (3-6 words each), each naming the most relevant corpus slug from this list (slug: Display Name):
+
+{corpus_list}
 
 Rules:
 - Strip question words (where, show me, what does, can I see).
 - Keep concrete nouns: publisher names, indicator names, years, figure numbers.
 - Each reformulation should emphasize different keywords, not repeat the same phrase.
-- If the query names a publisher with a matching corpus slug, target that corpus.
+- Match the query's publisher to the corpus Display Name (e.g. a FRED query -> macro-public-data, an EIA query -> eia, a World Bank query -> world-bank).
 
 Respond with JSON only: {{"searches": [{{"query": "...", "corpus": "slug or null"}}]}}
 
@@ -83,7 +98,8 @@ class Evidence8Agent(HTTPProvider):
         body = json.dumps({
             "model": "gpt-4o-mini",
             "messages": [{"role": "user", "content": REFORMULATE_PROMPT.format(
-                corpora=", ".join(KNOWN_CORPORA), query=query)}],
+                corpus_list="\n".join(f"{s}: {n}" for s, n in CORPORA.items()),
+                query=query)}],
             "temperature": 0.2,
             "max_tokens": 300,
         }).encode()
