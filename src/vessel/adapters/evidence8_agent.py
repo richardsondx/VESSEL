@@ -119,7 +119,7 @@ class Evidence8Agent(HTTPProvider):
                 return json.loads(block["text"])
         return {"status": "no_match", "results": []}
 
-    def search(self, query, k):
+    def search(self, query, k, context=None):
         searches = self._reformulate(query)
         if not searches:
             searches = [{"query": query, "corpus": None}]
