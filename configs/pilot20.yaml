@@ -12,7 +12,7 @@ max_cost_usd: 20
 max_requests: 1000
 providers:
   - name: evidence8
-    request_cost_ceiling_usd: null
+    request_cost_ceiling_usd: 0.05
   - name: keenable
     request_cost_ceiling_usd: null
     mode: pro

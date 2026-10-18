@@ -25,7 +25,9 @@ Credentials, private endpoint overrides and authenticated artifacts are excluded
 
 A frozen Evidence8 instance under benchmark must expose its build/index
 identifiers so the harness can verify the served artifact matches the
-freeze attestation before and after a run:
+freeze attestation before and after a run.
+
+For a self-hosted instance, the frozen build must expose:
 
     GET {base}/v1/version -> {
         "corpus_hash": "sha256:…",
@@ -37,6 +39,15 @@ freeze attestation before and after a run:
 `vessel freeze-check attestation.json` queries this endpoint and compares
 each field against the attestation. A mismatch, or a missing identifier,
 blocks the run. The version string alone (e.g. `local-v0.1`) is not an
+immutable index identity and does not satisfy this contract.
+
+The hosted public API (https://evidence8.com) does NOT expose /v1/version;
+its index is bundled with the current site deployment and changes with
+deployments, so it cannot satisfy the frozen-instance contract. Runs
+against the hosted API must record, before and after the run, the
+`GET /v1/corpora` response (corpus slugs and visual counts) plus the UTC
+timestamp, and be labeled "live public index as of <timestamp>", never as
+a frozen snapshot. The version string alone (e.g. `local-v0.1`) is not an
 immutable index identity and does not satisfy this contract.
 
 Observed local responses use relative preview paths. The adapter maps these to the
