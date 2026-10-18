@@ -277,6 +277,7 @@ class ProviderConfig(Model):
     name: Literal[
         "evidence8",
         "keenable",
+        "keenable-browser",
         "exa",
         "exa-instant",
         "serper",

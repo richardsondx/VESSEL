@@ -16,6 +16,8 @@ providers:
   - name: keenable
     request_cost_ceiling_usd: null
     mode: pro
+  - name: keenable-browser
+    request_cost_ceiling_usd: 0.0
   - name: exa
     request_cost_ceiling_usd: 0.02
     mode: auto
