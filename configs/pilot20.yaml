@@ -14,7 +14,7 @@ providers:
   - name: evidence8
     request_cost_ceiling_usd: 0.05
   - name: keenable
-    request_cost_ceiling_usd: null
+    request_cost_ceiling_usd: 0.05
     mode: pro
   - name: keenable-browser
     request_cost_ceiling_usd: 0.0
