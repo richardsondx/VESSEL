@@ -146,6 +146,56 @@ class Evidence8Agent(HTTPProvider):
                 return json.loads(block["text"])
         return {"status": "no_match", "results": []}
 
+    def _rerank(self, query, rows):
+        """Re-rank merged results using the visual metadata the API returns.
+
+        The raw MCP results carry ticker (e.g. FRED series IDs), chartKind,
+        type, tags, and relevance.matchedTerms. This is a general precision
+        step: prefer results whose structured identifiers match tokens in the
+        query, rather than trusting the lexical order alone.
+        """
+        import re
+        # Extract candidate identifiers: all-caps tokens (tickers like UNRATE),
+        # figure references (1.1), and years.
+        qtokens = set(re.findall(r"[A-Z]{2,}[A-Z0-9]*", query.upper()))
+        figures = set(re.findall(r"(?:figure|fig\.?)\s*([0-9.]+)", query, re.I))
+        years = set(re.findall(r"\b(19|20)\d{2}\b", query))
+        qwords = set(re.findall(r"[a-z]{3,}", query.lower()))
+
+        def score(row):
+            asset = row.get("asset", row)
+            s = 0.0
+            # Ticker / series-ID match is the strongest signal.
+            ticker = str(asset.get("ticker", "")).upper()
+            if ticker and ticker in qtokens:
+                s += 10.0
+            # Figure number match.
+            title = str(asset.get("title", ""))
+            for fig in figures:
+                if fig in title:
+                    s += 6.0
+            # Year match in title or date.
+            text = (title + " " + str(asset.get("date", ""))).lower()
+            for y in years:
+                if y in text:
+                    s += 2.0
+            # Keyword overlap with title + tags.
+            tags = " ".join(str(t) for t in asset.get("tags", [])).lower()
+            overlap = len(qwords & set(re.findall(r"[a-z]{3,}", title.lower() + " " + tags)))
+            s += overlap * 0.5
+            # Prefer actual charts over generic pages.
+            if asset.get("type", "").lower() in ("chart", "figure", "graph", "map"):
+                s += 1.5
+            # Blend with the engine's own relevance score.
+            rel = asset.get("relevance", {}) or {}
+            try:
+                s += float(rel.get("score", 0) or 0)
+            except (TypeError, ValueError):
+                pass
+            return s
+
+        return sorted(rows, key=score, reverse=True)
+
     def search(self, query, k, context=None):
         searches = self._reformulate(query)
         if not searches:
@@ -170,6 +220,8 @@ class Evidence8Agent(HTTPProvider):
                     break
             if len(merged) >= k:
                 break
+        # Re-rank using visual metadata before normalizing.
+        merged = self._rerank(query, merged)
         results = [
             normalize_asset(row, rank, self.base or "https://evidence8.com")
             for rank, row in enumerate(merged[:k], 1)
