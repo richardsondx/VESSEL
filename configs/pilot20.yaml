@@ -1,0 +1,59 @@
+# Pilot-20 run configuration. NOT YET RUNNABLE: requires index freeze
+# attestation, authored + independently reviewed queries, and the dataset.
+# Prepared 2026-10-17. Total budget $20 (Richardson's cap). Tier 3
+# (claude-search, chatgpt-search) excluded: they need paid API usage and
+# Richardson ruled out additional spend. Kagi excluded: no key (paid sub).
+# Per-call ceilings are ~2-4x documented unit cost; all keys are free-tier
+# so expected actual spend is near $0. null ceiling = skip.
+benchmark_version: development-v0.1
+protocol: search
+k: 10
+max_cost_usd: 20
+max_requests: 1000
+providers:
+  - name: evidence8
+    request_cost_ceiling_usd: null
+  - name: keenable
+    request_cost_ceiling_usd: null
+    mode: pro
+  - name: exa
+    request_cost_ceiling_usd: 0.02
+    mode: auto
+  - name: exa-instant
+    request_cost_ceiling_usd: 0.01
+  - name: serper
+    request_cost_ceiling_usd: 0.01
+    country: us
+    language: en
+  - name: brave
+    request_cost_ceiling_usd: 0.02
+  - name: brave-llmcontext
+    request_cost_ceiling_usd: 0.02
+  - name: you
+    request_cost_ceiling_usd: 0.02
+  - name: tavily
+    request_cost_ceiling_usd: 0.02
+  - name: perplexity
+    request_cost_ceiling_usd: 0.02
+  - name: perplexity-fast
+    request_cost_ceiling_usd: 0.01
+  - name: linkup
+    request_cost_ceiling_usd: 0.02
+  - name: firecrawl
+    request_cost_ceiling_usd: 0.01
+  - name: parallel
+    request_cost_ceiling_usd: 0.02
+  - name: parallel-turbo
+    request_cost_ceiling_usd: 0.01
+  - name: bing-searchapi
+    request_cost_ceiling_usd: 0.01
+  - name: jina
+    request_cost_ceiling_usd: 0.02
+  - name: context-dev
+    request_cost_ceiling_usd: 0.01
+  - name: octen
+    request_cost_ceiling_usd: 0.01
+  - name: tinyfish
+    request_cost_ceiling_usd: 0.0
+  - name: kagi
+    request_cost_ceiling_usd: null
