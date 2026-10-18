@@ -63,7 +63,10 @@ class Exa(HTTPProvider):
     header = "x-api-key"
 
     def payload(self, query, k):
-        return {"query": query, "numResults": k, "type": self.config.mode or "auto"}
+        mode = self.config.mode
+        if not mode:
+            mode = "instant" if self.config.name == "exa-instant" else "auto"
+        return {"query": query, "numResults": k, "type": mode}
 
     def normalize(self, raw, k):
         return documents(raw, "results", k)

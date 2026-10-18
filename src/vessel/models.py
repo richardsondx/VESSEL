@@ -278,6 +278,7 @@ class ProviderConfig(Model):
         "evidence8",
         "keenable",
         "exa",
+        "exa-instant",
         "serper",
         "keenable_evidence8",
         "exa_evidence8",

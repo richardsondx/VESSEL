@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Annotated
@@ -252,6 +253,64 @@ def export(run_dir: Path, output: Path, public_release: bool = False):
     except (ValueError, OSError) as error:
         fail(str(error))
     typer.echo(f"Exported {result['notice']}: {output}")
+
+
+@app.command()
+def blind(run_dir: Path, output: Path):
+    """Export blinded adjudication packets for a run directory.
+
+    Engine names are replaced by random blind IDs; the blind-ID mapping is
+    sealed under output/sealed/ until adjudications are recorded. Packets
+    carry full bundle content (provenance preserved) keyed by the opaque
+    bundle_sha256 the scorer uses.
+    """
+    from vessel.blinding import blind_run
+
+    try:
+        summary = blind_run(run_dir, output)
+    except (ValueError, OSError) as error:
+        fail(str(error))
+    typer.echo(
+        f"Blinded {summary['packets']} bundles from {summary['providers']} engines "
+        f"across {summary['queries']} queries: {output}"
+    )
+    typer.echo("Engine mapping sealed at output/sealed/. Do not open until adjudications are recorded.")
+
+
+@app.command(name="freeze-check")
+def freeze_check(attestation: Path, base_url: str | None = None):
+    """Verify the served Evidence8 identifiers match a freeze attestation.
+
+    Reads the attestation JSON, queries GET {base}/v1/version on the
+    Evidence8 service, and compares corpus_hash, index_hash,
+    index_version, and code_commit. Exits non-zero on mismatch or when
+    the service does not expose an attested identifier.
+    """
+    import httpx
+
+    from vessel.freeze import IDENTIFIER_FIELDS, check_freeze
+
+    load_dotenv(Path.cwd() / ".env", override=False)
+    try:
+        attestation_data = json.loads(attestation.read_text())
+    except (OSError, json.JSONDecodeError) as error:
+        fail(f"Could not read attestation: {error}")
+    base = base_url or os.getenv("EVIDENCE8_BASE_URL", "")
+    if not base.strip():
+        fail("No Evidence8 base URL: pass --base-url or set EVIDENCE8_BASE_URL.")
+    try:
+        with httpx.Client() as client:
+            result = check_freeze(attestation_data, base, client)
+    except Exception as error:  # noqa: BLE001 - reported via fail()
+        fail(str(error))
+    for name in IDENTIFIER_FIELDS:
+        field = result["fields"][name]
+        typer.echo(f"{name}: expected={field['expected']} observed={field['observed']} match={field['match']}")
+    if result.get("error"):
+        typer.echo(f"transport: {result['error']}")
+    typer.echo(f"verdict: {result['verdict']}")
+    if result["verdict"] != "match":
+        raise typer.Exit(2)
 
 
 if __name__ == "__main__":

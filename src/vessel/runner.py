@@ -102,6 +102,7 @@ def providers_for(config: RunConfig, fixture: Path | None):
                 "evidence8": Evidence8,
                 "keenable": Keenable,
                 "exa": Exa,
+                "exa-instant": Exa,
                 "serper": Serper,
                 **TIER2,
             }[setting.name](setting)
