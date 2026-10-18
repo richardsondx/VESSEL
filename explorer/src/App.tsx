@@ -416,6 +416,8 @@ function ExplorerApp() {
                       <th>Location</th>
                       <th>Data</th>
                       <th className="highlight">Full Support@{k}</th>
+                      <th>Latency</th>
+                      <th>Cost / 1k</th>
                       <th>Failures / skips</th>
                     </tr>
                   </thead>
@@ -440,6 +442,16 @@ function ExplorerApp() {
                                 ? `${percent(m.full_support_ci95[0])}–${percent(m.full_support_ci95[1])} CI`
                                 : "Insufficient families for CI"}
                             </small>
+                          </td>
+                          <td>
+                            {m.median_latency_ms != null
+                              ? `${(m.median_latency_ms / 1000).toFixed(1)}s`
+                              : "—"}
+                          </td>
+                          <td>
+                            {m.reserved_cost_usd != null && m.queries
+                              ? `$${((m.reserved_cost_usd / m.queries) * 1000).toFixed(2)}`
+                              : "—"}
                           </td>
                           <td>
                             {Object.entries(m.statuses)
