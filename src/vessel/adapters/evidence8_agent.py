@@ -26,11 +26,22 @@ from vessel.models import SearchResponse  # noqa: E402
 MCP_URL = "https://evidence8.com/mcp"
 OPENAI_URL = "https://api.openai.com/v1/chat/completions"
 
-# Corpora the agent may target, from the public corpus list.
+# Corpora the agent may target. Slugs verified against the live corpus
+# directory (the /v1/corpora endpoint omits several searchable corpora).
 KNOWN_CORPORA = [
-    "bls-data", "imf-weo", "our-world-in-data", "census-visualizations",
-    "unep-emissions-gap", "ipcc-wg3-ar6", "treasury-fiscal-data",
-    "zillow-housing-data", "macro-public-data",
+    "macro-public-data",      # FRED (124 visuals)
+    "world-bank",             # World Bank Indicators (100 charts)
+    "sec-filing-visuals",     # SEC Filing Visuals
+    "iea-data",               # IEA Energy Charts
+    "bls-data",
+    "imf-weo",
+    "our-world-in-data",
+    "census-visualizations",
+    "unep-emissions-gap",
+    "ipcc-wg3-ar6",
+    "treasury-fiscal-data",
+    "zillow-housing-data",
+    "ghsl",
 ]
 
 REFORMULATE_PROMPT = """You reformulate visual-evidence search queries for a deterministic lexical search engine.
