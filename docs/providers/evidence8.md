@@ -21,6 +21,24 @@ diagnostic passed. Full protocol validation remains pending.
 
 Credentials, private endpoint overrides and authenticated artifacts are excluded.
 
+## Freeze verification contract
+
+A frozen Evidence8 instance under benchmark must expose its build/index
+identifiers so the harness can verify the served artifact matches the
+freeze attestation before and after a run:
+
+    GET {base}/v1/version -> {
+        "corpus_hash": "sha256:…",
+        "index_hash": "sha256:…",
+        "index_version": "…",
+        "code_commit": "…"
+    }
+
+`vessel freeze-check attestation.json` queries this endpoint and compares
+each field against the attestation. A mismatch, or a missing identifier,
+blocks the run. The version string alone (e.g. `local-v0.1`) is not an
+immutable index identity and does not satisfy this contract.
+
 Observed local responses use relative preview paths. The adapter maps these to the
 documented `/v1/assets/{id}/content` API route, retains unknown page conventions,
 and marks `derived-from-source-data` visuals as generated. Local `dataPath` values
