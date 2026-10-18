@@ -1,5 +1,7 @@
 """Deterministic scoring. No provider dependencies or provider-specific exceptions."""
 
+from urllib.parse import urlsplit
+
 from vessel.identity import canonical_url
 from vessel.models import (
     Adjudication,
@@ -23,6 +25,38 @@ COMPONENTS = (
     "methodology",
     "reproducibility",
 )
+
+
+def _domain(url: str | None) -> str | None:
+    """Extract the lowercase domain from a URL, or None if unparseable."""
+    if not url:
+        return None
+    try:
+        netloc = urlsplit(canonical_url(url)).netloc
+        return netloc.lower() or None
+    except Exception:
+        return None
+
+
+def _is_primary_source(document_url: str | None, authoritative_urls: list) -> bool:
+    """Check if a document URL comes from an authoritative publisher.
+
+    The authoritative URLs name trusted publishers (often domain roots).
+    A document is primary-source if its domain matches or is a subdomain
+    of an authoritative URL's domain. Exact URL equality is not required:
+    https://fred.stlouisfed.org/series/UNRATE is primary when the
+    authoritative URL is https://fred.stlouisfed.org.
+    """
+    doc_domain = _domain(document_url)
+    if not doc_domain:
+        return False
+    for auth in authoritative_urls:
+        auth_domain = _domain(str(auth))
+        if not auth_domain:
+            continue
+        if doc_domain == auth_domain or doc_domain.endswith("." + auth_domain):
+            return True
+    return False
 
 
 def matches(identity: Identity, url=None, sha=None, identifier=None) -> bool:
@@ -96,7 +130,7 @@ def components(
             visual = visual and matches(gold.visual, bundle.visual.url, bundle.visual.sha256)
     primary = bool(
         document
-        and canonical_url(src.document_url) in {canonical_url(u) for u in gold.authoritative_urls}
+        and _is_primary_source(src.document_url, gold.authoritative_urls)
     )
     data = bool(
         gold.data_available

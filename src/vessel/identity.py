@@ -8,4 +8,6 @@ def canonical_url(url: object | None) -> str | None:
         return None
     p = urlsplit(str(url))
     # Preserve query parameters: IDs, vintages and chart configuration can live there.
-    return urlunsplit((p.scheme.lower(), p.netloc.lower(), p.path or "/", p.query, ""))
+    # Normalize trailing slashes: /series/UNRATE and /series/UNRATE/ name the same resource.
+    path = (p.path or "/").rstrip("/") or "/"
+    return urlunsplit((p.scheme.lower(), p.netloc.lower(), path, p.query, ""))
