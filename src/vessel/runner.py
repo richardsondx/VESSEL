@@ -10,6 +10,7 @@ import yaml
 from vessel.adapters.base import ArtifactStore, Budget, Context, ReplayProvider
 from vessel.adapters.captured import CapturedResultsProvider
 from vessel.adapters.evidence8 import Evidence8
+from vessel.adapters.evidence8_agent import Evidence8Agent
 from vessel.adapters.hybrid import ExaEvidence8, KeenableEvidence8, SerperEvidence8
 from vessel.adapters.tier2 import (
     BingSearchApi,
@@ -101,6 +102,7 @@ def providers_for(config: RunConfig, fixture: Path | None):
         else:
             provider = {
                 "evidence8": Evidence8,
+                "evidence8-agent": Evidence8Agent,
                 "keenable": Keenable,
                 "keenable-browser": CapturedResultsProvider,
                 "exa": Exa,

@@ -276,6 +276,7 @@ class FetchLimits(Model):
 class ProviderConfig(Model):
     name: Literal[
         "evidence8",
+        "evidence8-agent",
         "keenable",
         "keenable-browser",
         "exa",
